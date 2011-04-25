@@ -99,9 +99,6 @@ sub add_handle($$)
 	my $multi = shift;
 	my $easy = shift;
 
-	die "easy cannot finish()\n"
-		unless $easy->can( 'finish' );
-
 	# Irssi won't allow timeout smaller than 10ms
 	Irssi::timeout_add_once( 10, sub {
 		$multi->socket_action();
@@ -131,15 +128,10 @@ sub socket_action
 	}
 }
 
-
-# we use just one global multi object
-my $multi;
-
-# put the add() function in some package we know
-sub WWW::CurlOO::Simple::Async::add($)
+sub loop
 {
-	unless ( $multi ) {
-		$multi = __PACKAGE__->_new();
-	}
-	$multi->add_handle( shift );
+	warn __PACKAGE__ . " does not support blocking loop()\n";
+	return;
 }
+
+1;
