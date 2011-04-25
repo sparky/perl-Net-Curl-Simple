@@ -121,7 +121,7 @@ sub socket_action
 	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
 		if ( $msg == WWW::CurlOO::Multi::CURLMSG_DONE ) {
 			$multi->remove_handle( $easy );
-			$easy->finish( $result );
+			$easy->_finish( $result );
 		} else {
 			die "I don't know what to do with message $msg.\n";
 		}

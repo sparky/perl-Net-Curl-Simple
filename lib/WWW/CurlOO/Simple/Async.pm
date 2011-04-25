@@ -53,8 +53,8 @@ sub add
 {
 	my $easy = shift;
 
-	die "easy cannot finish()\n"
-		unless $easy->can( 'finish' );
+	die "easy cannot _finish()\n"
+		unless $easy->can( '_finish' );
 
 	$multi = $make_multi->() unless $multi;
 	$multi->add_handle( $easy );

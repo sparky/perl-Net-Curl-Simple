@@ -175,7 +175,7 @@ sub new
 	return $easy;
 }
 
-sub finish
+sub _finish
 {
 	my ( $easy, $result ) = @_;
 	$easy->{referer} = $easy->getinfo( 'effective_url' );
@@ -223,7 +223,7 @@ sub _perform
 		eval {
 			$easy->perform();
 		};
-		$easy->finish( $@ || WWW::CurlOO::Easy::CURLE_OK );
+		$easy->_finish( $@ || WWW::CurlOO::Easy::CURLE_OK );
 	}
 	return $easy;
 }
