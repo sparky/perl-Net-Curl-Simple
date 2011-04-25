@@ -21,7 +21,7 @@ WriteMakefile(
 	},
 	PREREQ_PM => {
 		"WWW::CurlOO" => "0.15",
-		#"Test::More" => 0,
+		"Test::More" => 0,
 	},
 	DIR			=> [], # no other Makefile.PL
 );
