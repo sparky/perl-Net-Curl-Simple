@@ -19,7 +19,7 @@ my @common_options = (
 	ssl_verifypeer => 0,
 	noprogress => 1,
 	cookiefile => '',
-	useragent => "WWW::CurlOO::Simple v$VERSION",
+	useragent => __PACKAGE__ . " v$VERSION",
 	headerfunction => \&_cb_header,
 	httpheader => [
 		'Accept: */*',
