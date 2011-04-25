@@ -108,7 +108,12 @@ sub setopts
 sub _cb_header
 {
 	my ( $easy, $data, $uservar ) = @_;
-	push @{ $easy->{headers} }, $data;
+	{
+		local $_ = $data;
+		local $/ = "\r\n";
+		chomp;
+		push @{ $easy->{headers} }, $_;
+	}
 	return length $data;
 }
 
