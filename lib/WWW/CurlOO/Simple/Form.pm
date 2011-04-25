@@ -34,18 +34,18 @@ use base qw(WWW::CurlOO::Form);
 
 		$form->SUPER::add( @args );
 
-		# allow stacking
+		# allow chaining
 		return $form;
 	}
 }
 
-sub add_contents
+sub contents
 {
 	my ( $form, $name, $contents ) = @_;
 	$form->add( name => $name, contents => $contents );
 }
 
-sub add_file
+sub file
 {
 	my $form = shift;
 	$form->add( name => shift, map +( file => $_ ), @_ );
@@ -63,15 +63,55 @@ WWW::CurlOO::Simple::Form - simplify WWW::CurlOO::Form a little
  use WWW::CurlOO::Simple::Form;
 
  my $form = WWW::CurlOO::Simple::Form->new();
- $form->add_contents( foo => "bar" )->add_file( photos => glob "*.jpg" );
+ $form->contents( foo => "bar" )->file( photos => glob "*.jpg" );
  $form->add( name => "html", contents => "<html></html>",
      contenttype => "text/html" );
 
- $getter->post( $uri, \&finished, $form );
+ WWW::CurlOO::Simple->new->post( $uri, \&finished, $form );
 
-=head1 NOTHING HERE
+=head1 CONSTRUCTOR
 
-Yeah, just a stub
+=over
+
+=item new
+
+Creates an empty multipart/formdata object.
+
+ my $form = WWW::CurlOO::Simple::Form->new;
+
+=back
+
+=head1 METHODS
+
+=over
+
+=item add( OPTIONS )
+
+Adds a section to this form. Behaves in the same way as add() from
+L<WWW::CurlOO::Form> but also accepts literal option names. Returns its own
+object to allow chaining.
+
+=item contents( NAME, CONTENTS )
+
+Shortcut for add( name => NAME, contents => CONTENTS ).
+
+=item file( NAME, FILE1, [FILE2, [...] ] )
+
+Shortcut for add( name => NAME, file => FILE1, file => FILE2, ... ).
+
+=head1 SEE ALSO
+
+L<WWW::CurlOO::Simple>
+L<WWW::CurlOO::Form>
+L<curl_formadd(3)>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as perl itself.
 
 =cut
+
 # vim: ts=4:sw=4
