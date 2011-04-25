@@ -99,6 +99,8 @@ Shortcut for add( name => NAME, contents => CONTENTS ).
 
 Shortcut for add( name => NAME, file => FILE1, file => FILE2, ... ).
 
+=back
+
 =head1 SEE ALSO
 
 L<WWW::CurlOO::Simple>
