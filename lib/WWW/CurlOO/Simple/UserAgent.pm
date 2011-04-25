@@ -12,16 +12,6 @@ my %common_options = (
 	useragent => __PACKAGE__ . " v$VERSION",
 );
 
-sub setopt
-{
-	my ( $share, $opt, $val ) = @_;
-
-	$share = \%common_options
-		unless ref $share;
-
-	$share->{ $opt } = $val;
-}
-
 sub setopts
 {
 	my $share = shift;
@@ -32,6 +22,7 @@ sub setopts
 
 	@$share{ keys %opts } = values %opts;
 }
+*setopt = \&setopts;
 
 sub new
 {
@@ -50,7 +41,7 @@ sub curl
 {
 	my $share = shift;
 	require WWW::CurlOO::Simple;
-	return WWW::CurlOO::Simple->new( share => $share, %$share, @_ );
+	return WWW::CurlOO::Simple->new( %$share, @_, share => $share );
 }
 
 1;
