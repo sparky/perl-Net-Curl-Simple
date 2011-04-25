@@ -43,7 +43,7 @@ sub add
 
 sub loop
 {
-	_make_multi() unless $multi;
+	return unless $multi;
 	$multi->loop();
 }
 
