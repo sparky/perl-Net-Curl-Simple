@@ -52,7 +52,7 @@ if ( WWW::CurlOO::version_info()->{features} & CURL_VERSION_LIBZ ) {
 
 	sub setopt
 	{
-		my ( $easy, $opt, $val ) = @_;
+		my ( $easy, $opt, $val, $temp ) = @_;
 
 		unless ( looks_like_number( $opt ) ) {
 			# convert option name to option number
@@ -69,12 +69,18 @@ if ( WWW::CurlOO::version_info()->{features} & CURL_VERSION_LIBZ ) {
 			my $type = ( $val =~ m#^([a-z0-9]+)://# );
 			die "unknown proxy type $type\n"
 				unless exists $proxytype{ $type };
-			$easy->SUPER::setopt( CURLOPT_PROXYTYPE, $proxytype{ $type } );
+			$easy->setopt( CURLOPT_PROXYTYPE, $proxytype{ $type }, $temp );
 		} elsif ( $opt == CURLOPT_POSTFIELDS ) {
 			# perl knows the size, but libcurl may be wrong
-			$easy->SUPER::setopt( CURLOPT_POSTFIELDSIZE, length $val );
+			$easy->setopt( CURLOPT_POSTFIELDSIZE, length $val, $temp );
 		}
 
+		my $stash = $easy->{options_temp};
+		unless ( $temp ) {
+			delete $stash->{ $opt };
+			$stash = $easy->{options};
+		}
+		$stash->{ $opt } = $val;
 		$easy->SUPER::setopt( $opt => $val );
 	}
 }
@@ -87,6 +93,16 @@ sub setopts
 		$easy->setopt( $opt => $val );
 	}
 }
+
+sub setopts_temp
+{
+	my $easy = shift;
+
+	while ( my ( $opt, $val ) = splice @_, 0, 2 ) {
+		$easy->setopt( $opt => $val, 1 );
+	}
+}
+
 
 {
 	my %infocache;
@@ -141,7 +157,12 @@ sub new
 	my $class = shift;
 
 	my $easy = $class->SUPER::new(
-		{ body => '', headers => [] }
+		{
+			body => '',
+			headers => [],
+			options => {},
+			options_temp => {},
+		}
 	);
 	# some sane defaults
 	$easy->setopts(
@@ -162,6 +183,13 @@ sub finish
 
 	my $cb = $easy->{cb};
 	$cb->( $easy, $result );
+
+	my $perm = $easy->{options};
+	foreach my $opt ( keys %{ $easy->{options_temp} } ) {
+		my $val = $perm->{$opt};
+		$easy->setopt( $opt => $val, 0 );
+
+	}
 }
 
 sub ua
@@ -179,10 +207,10 @@ sub _perform
 		$easy->setopt( referer => $easy->{referer} );
 		$uri = URI->new( $uri )->abs( $easy->{referer} )->as_string;
 	}
-	$easy->setopts(
-		@_,
-		url => $uri,
-	);
+
+	$easy->setopts_temp( @_ ) if @_;
+	$easy->setopt( url => $uri );
+
 	$easy->{uri} = $uri;
 	$easy->{cb} = $cb;
 	$easy->{body} = '';
@@ -203,8 +231,9 @@ sub _perform
 # get some uri
 sub get
 {
-	my ( $easy, $uri, $cb ) = @_;
+	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
 	$easy->_perform( $uri, $cb,
+		@_,
 		httpget => 1,
 	);
 }
@@ -212,8 +241,9 @@ sub get
 # request head on some uri
 sub head
 {
-	my ( $easy, $uri, $cb ) = @_;
+	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
 	$easy->_perform( $uri, $cb,
+		@_,
 		nobody => 1,
 	);
 }
@@ -221,7 +251,7 @@ sub head
 # post data to some uri
 sub post
 {
-	my ( $easy, $uri, $cb, $post ) = @_;
+	my ( $easy, $uri, $cb, $post ) = splice @_, 0, 4;
 	my @postopts;
 	if ( not ref $post ) {
 		@postopts = ( postfields => $post );
@@ -236,7 +266,11 @@ sub post
 	} else {
 		die "don't know how to convert $post into a valid post\n";
 	}
-	$easy->_perform( $uri, $cb, post => 1, @postopts );
+	$easy->_perform( $uri, $cb,
+		@_,
+		post => 1,
+		@postopts
+	);
 }
 
 
@@ -244,7 +278,7 @@ sub post
 
 =head1 NAME
 
-WWW::CurlOO::Simple - simplify WWW::CurlOO::Easy interface
+WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
 
 =head1 SYNOPSIS
 
