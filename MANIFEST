@@ -1,3 +1,13 @@
+MANIFEST
 Makefile.PL
 README
 lib/WWW/CurlOO/Simple.pm
+lib/WWW/CurlOO/Simple/Async.pm
+lib/WWW/CurlOO/Simple/Async/AnyEvent.pm
+lib/WWW/CurlOO/Simple/Async/Irssi.pm
+lib/WWW/CurlOO/Simple/Async/Perl.pm
+lib/WWW/CurlOO/Simple/Form.pm
+lib/WWW/CurlOO/Simple/UserAgent.pm
+t/01-use.t
+t/02-version.t
+t/10-simple.t
