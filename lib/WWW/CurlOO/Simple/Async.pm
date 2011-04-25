@@ -13,12 +13,12 @@ unless ( WWW::CurlOO::version_info()->{features}
 }
 
 my @backends = (
+	Irssi => 'Irssi',
 	AnyEvent => 'AnyEvent',
 	# POE => 'POE::Kernel',
 	# IO_Async => 'IO::Async::Loop',
 	# EV => 'EV',
 	# Glib => 'Glib',
-	Irssi => 'Irssi',
 	Perl => undef, # direct approach
 );
 
@@ -106,7 +106,12 @@ asynchronous support is adding:
 
  use WWW::CurlOO::Simple::Async;
 
-It will pick up best Async backend automatically.
+It will pick up best Async backend automatically but you may force it if
+you don't like the one detected:
+
+ use Irssi;
+ # Irssi backend would be picked
+ use WWW::CurlOO::Simple::Async qw(AnyEvent);
 
 =head1 FUNCTIONS
 
@@ -124,15 +129,15 @@ In order of preference.
 
 =over
 
-=item AnyEvent
-
-Will be used if AnyEvent has been loaded. There should be no need to use
-loop() but it should work in most cases.
-
 =item Irssi
 
 Will be used if Irssi has been loaded. Does not support loop() - it will not
 block.
+
+=item AnyEvent
+
+Will be used if AnyEvent has been loaded. There should be no need to use
+loop() but it should work in most cases.
 
 =item Perl
 
