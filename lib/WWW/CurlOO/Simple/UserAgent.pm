@@ -30,7 +30,7 @@ sub setopts
 	$share = \%common_options
 		unless ref $share;
 
-	$share->{ keys %opts } = values %opts;
+	@$share{ keys %opts } = values %opts;
 }
 
 sub new
