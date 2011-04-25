@@ -12,7 +12,7 @@ BEGIN {
 	}
 }
 
-sub _new
+sub new
 {
 	my $class = shift;
 
