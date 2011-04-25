@@ -284,18 +284,92 @@ WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
 
  use WWW::CurlOO::Simple;
 
- my $getter = WWW::CurlOO::Simple->new();
- $getter->get( $uri, \&finished );
+ WWW::CurlOO::Simple->new->get( $uri, \&finished );
 
  sub finished
  {
      my ( $curl, $result ) = @_;
      print "document body: $curl->{body}\n";
+
+     # reuse connection to get another file
+     $curl->get( '/other_file', \&finished2 );
  }
 
-=head1 NOTHING HERE
+ sub finished2;
 
-Yeah, just a stub
+=head1 CONSTRUCTOR
+
+=over
+
+=item new( [PERMANENT_OPTIONS] )
+
+Creates new WWW::CurlOO::Simple object.
+
+ my $curl = WWW::CurlOO::Simple->new( timeout => 60 );
+
+=back
+
+=head1 METHODS
+
+=over
+
+=item setopt( NAME, VALUE, [TEMPORARY] )
+
+Set some option. Either permanently or only for next request if TEMPORARY is
+true.
+
+=item setopts( PERMANENT_OPTIONS )
+
+Set multiple options, permanently.
+
+=item setopts_temp( TEMPORARY_OPTIONS )
+
+Set multiple options, only for next request.
+
+=item getinfo( NAME )
+
+Get connection information.
+
+ my $value = $curl->getinfo( 'effective_url' );
+
+=item getinfos( INFO_NAMES )
+
+Get multiple getinfo values.
+
+ my ( $v1, $v2 ) ) $curl->getinfos( 'name1', 'name2' );
+
+=item ua
+
+Get parent WWW::CurlOO::Simple::UserAgent object.
+
+=item get( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+
+Issue a GET request. CALLBACK will be called upon finishing with two arguments:
+WWW::CurlOO::Simple object and the result value. If URI is incomplete, full uri
+will be constructed using $curl->{referer} as base. WWW::CurlOO::Simple updates
+$curl->{referer} after every request.
+
+ $curl->get( "http://full.uri/", sub {
+     my $curl = shift;
+     my $result = shift;
+     die "get() failed: $result\n" unless $result == 0;
+
+     $curl->get( "/partial/uri", sub {} );
+ } );
+
+=item head( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+
+Issue a HEAD request. Otherwise it is exactly the same as get().
+
+=item post( URI, CALLBACK, POST, [TEMPORARY_OPTIONS] )
+
+Issue a POST request. POST value can be either a scalar, in which case it will
+be sent literally, a HASHREF - will be uri-encoded, or a WWW::CurlOO::Form
+object (WWW::CurlOO::Simple::Form is OK as well).
+
+ $curl->post( $uri, \&finished,
+     { username => "foo", password => "bar" }
+ );
 
 =cut
 # vim: ts=4:sw=4
