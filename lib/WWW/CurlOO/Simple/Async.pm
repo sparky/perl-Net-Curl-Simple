@@ -26,6 +26,7 @@ $make_multi = sub
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
 			my $implpkg = join '::', __PACKAGE__, $impl;
 			eval "require $implpkg";
+			die $@ if $@;
 			eval {
 				$multi = $implpkg->new();
 			};
