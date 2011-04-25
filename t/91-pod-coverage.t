@@ -9,8 +9,8 @@ unless ( $ENV{'TEST_AUTHOR'} ) {
 eval "use Test::Pod::Coverage 1.04";
 plan skip_all => "Test::Pod::Coverage 1.04 required for testing POD coverage" if $@;
 
-plan tests => 3;
-foreach my $ext ( '', qw(::UserAgent ::Async) ) {
+plan tests => 4;
+foreach my $ext ( '', qw(::UserAgent ::Async ::Form) ) {
 	pod_coverage_ok( 'WWW::CurlOO::Simple'.$ext,
 		"WWW::CurlOO::Simple$ext has proper POD coverage" );
 }
