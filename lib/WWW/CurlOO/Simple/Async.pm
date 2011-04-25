@@ -39,6 +39,15 @@ $make_multi = sub
 	return $multi;
 };
 
+sub import
+{
+	my $class = shift;
+	my $impl = shift;
+	return if not $impl or not $make_multi;
+	# force some implementation
+	@backends = ( $impl, undef );
+}
+
 my $multi;
 sub add
 {
