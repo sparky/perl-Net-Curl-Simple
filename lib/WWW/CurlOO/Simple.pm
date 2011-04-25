@@ -5,6 +5,8 @@ use warnings;
 use WWW::CurlOO qw(/^CURL_VERSION_/);
 use WWW::CurlOO::Easy qw(/^CURLOPT_/ /^CURLPROXY_/);
 use Scalar::Util qw(looks_like_number);
+use URI;
+use URI::Escape qw(uri_escape);
 use base qw(WWW::CurlOO::Easy);
 
 our $VERSION = '0.01';
@@ -17,39 +19,56 @@ my @common_options = (
 	CURLOPT_SSL_VERIFYPEER, 0,
 	CURLOPT_NOPROGRESS, 1,
 	CURLOPT_COOKIEFILE, '',
-	CURLOPT_USERAGENT, 'WWW::CurlOO::Simple',
+	CURLOPT_USERAGENT, "WWW::CurlOO::Simple v$VERSION",
 	CURLOPT_HEADERFUNCTION, \&_cb_header,
 	CURLOPT_HTTPHEADER, [
 		'Accept: */*',
 	],
 );
 
-my %proxy = (
+my %proxytype = (
 	http    => CURLPROXY_HTTP,
-	http10  => CURLPROXY_HTTP_1_0,
 	socks4  => CURLPROXY_SOCKS4,
-	socks4a => CURLPROXY_SOCKS4A,
 	socks5  => CURLPROXY_SOCKS5,
 	socks   => CURLPROXY_SOCKS5,
-	socks5host => CURLPROXY_SOCKS5_HOSTNAME,
 );
+{
+	# introduced later in 7.18.0 and 7.19.4
+	eval '$proxytype{socks4a} = CURLPROXY_SOCKS4A;
+		$proxytype{socks5host} = CURLPROXY_SOCKS5_HOSTNAME';
+	eval '$proxytype{http10} = CURLPROXY_HTTP_1_0';
+}
 
 if ( WWW::CurlOO::version_info()->{features} & CURL_VERSION_LIBZ ) {
 	push @common_options, CURLOPT_ENCODING, 'gzip,deflate';
 }
 
 my %option2curlopt = map { lc $_ => eval "WWW::CurlOO::Easy::CURLOPT_\U$_" }
-	qw(timeout useragent proxy interface url referer range httpheader);
+	qw(verbose timeout useragent proxy interface url referer range httpheader);
 
 sub setopt
 {
 	my ( $easy, $opt, $val ) = @_;
+
 	unless ( looks_like_number( $opt ) ) {
+		# convert option name to option number
 		die "unrecognized literal option: $opt\n"
 			unless exists $option2curlopt{ lc $opt };
 		$opt = $option2curlopt{ lc $opt };
 	}
-	return $easy->SUPER::setopt( $opt => $val );
+
+	if ( $opt == CURLOPT_PROXY ) {
+		# guess proxy type from proxy string
+		my $type = ( $val =~ m#^([a-z0-9]+)://# );
+		die "unknown proxy type $type\n"
+			unless exists $proxytype{ $type };
+		$easy->SUPER::setopt( CURLOPT_PROXYTYPE, $proxytype{ $type } );
+	} elsif ( $opt == CURLOPT_POSTFIELDS ) {
+		# perl knows the size, but libcurl may be wrong
+		$easy->SUPER::setopt( CURLOPT_POSTFIELDSIZE, length $val );
+	}
+
+	$easy->SUPER::setopt( $opt => $val );
 }
 
 sub setopts
@@ -71,7 +90,6 @@ sub _cb_header
 sub new
 {
 	my $class = shift;
-	my $uri = shift;
 
 	my $easy = $class->SUPER::new(
 		{ body => '', headers => [] }
@@ -105,9 +123,11 @@ sub _perform
 	if ( $easy->{in_use} ) {
 		die "this handle is already in use\n";
 	}
+	if ( $easy->{referer} ) {
+		$easy->setopt( CURLOPT_REFERER, $easy->{referer} );
+		$uri = URI->new( $uri )->abs( $easy->{referer} )->as_string;
+	}
 	$easy->setopts(
-		defined $easy->{referer} ?
-			(CURLOPT_REFERER, $easy->{referer}) : (),
 		@_,
 		CURLOPT_URL, $uri,
 	);
@@ -116,13 +136,14 @@ sub _perform
 	$easy->{body} = '';
 	$easy->{headers} = [];
 	$easy->{in_use} = 1;
+
 	if ( exists $INC{"WWW::CurlOO::Simple::Async"} ) {
 		WWW::CurlOO::Simple::Async::add( $easy );
 	} else {
 		eval {
 			$easy->perform();
 		};
-		$easy->finish( $@ || 0 );
+		$easy->finish( $@ || WWW::CurlOO::Easy::CURLE_OK );
 	}
 	return $easy;
 }
@@ -149,11 +170,21 @@ sub head
 sub post
 {
 	my ( $easy, $uri, $cb, $post ) = @_;
-	$easy->_perform( $uri, $cb,
-		CURLOPT_POST, 1,
-		CURLOPT_POSTFIELDS, $post,
-		CURLOPT_POSTFIELDSIZE, length $post,
-	);
+	my @postopts;
+	if ( not ref $post ) {
+		@postopts = ( CURLOPT_POSTFIELDS, $post );
+	} elsif ( UNIVERSAL::isa( $post, 'WWW::CurlOO::Form' ) ) {
+		@postopts = ( CURLOPT_HTTPPOST, $post );
+	} elsif ( ref $post eq 'HASH' ) {
+		# handle utf8 ?
+		my $postdata = join '&',
+			map { uri_escape( $_ ) . '=' . uri_escape( $post->{ $_ } ) }
+			sort keys %$post;
+		@postopts = ( CURLOPT_POSTFIELDS, $postdata );
+	} else {
+		die "don't know how to convert $post into a valid post\n";
+	}
+	$easy->_perform( $uri, $cb, CURLOPT_POST, 1, @postopts );
 }
 
 
@@ -179,3 +210,6 @@ WWW::CurlOO::Simple - simplify WWW::CurlOO::Easy interface
 =head1 NOTHING HERE
 
 Yeah, just a stub
+
+=cut
+# vim: ts=4:sw=4
