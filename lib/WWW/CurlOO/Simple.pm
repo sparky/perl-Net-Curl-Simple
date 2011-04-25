@@ -217,7 +217,7 @@ sub _perform
 	$easy->{headers} = [];
 	$easy->{in_use} = 1;
 
-	if ( my $add = UNIVERSAL::can( 'WWW::CurlOO::Simple::Async', 'add' ) ) {
+	if ( my $add = UNIVERSAL::can( 'WWW::CurlOO::Simple::Async', '_add' ) ) {
 		$add->( $easy );
 	} else {
 		eval {

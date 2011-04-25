@@ -57,7 +57,7 @@ sub import
 }
 
 my $multi;
-sub add
+sub _add
 {
 	my $easy = shift;
 
@@ -89,7 +89,7 @@ WWW::CurlOO::Simple::Async - perform WWW::CurlOO requests asynchronously
  WWW::CurlOO::Simple->new()->get( $uri, \&finished );
  WWW::CurlOO::Simple->new()->get( $uri2, \&finished );
 
- # block until all requests are finished
+ # block until all requests are finished, may not be needed
  WWW::CurlOO::Simple::Async::loop();
 
  sub finished
