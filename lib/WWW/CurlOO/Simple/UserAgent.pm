@@ -2,6 +2,42 @@ package WWW::CurlOO::Simple::UserAgent;
 
 use strict;
 use warnings;
+use WWW::CurlOO::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
+use Scalar::Util qw(looks_like_number);
+use base qw(WWW::CurlOO::Share);
+
+sub setopt
+{
+	my ( $share, $opt, $val ) = @_;
+	$share->{ $opt } = $val;
+}
+
+sub setopts
+{
+	my $share = shift;
+	my %opts = @_;
+	$share->{ keys %opts } = values %opts;
+}
+
+sub new
+{
+	my $class = shift;
+
+	my $share = $class->SUPER::new();
+
+	$share->SUPER::setopt( CURLSHOPT_SHARE, CURL_LOCK_DATA_COOKIE );
+	$share->SUPER::setopt( CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS );
+	$share->setopts( @_ );
+
+	return $share;
+}
+
+sub curl
+{
+	my $share = shift;
+	require WWW::CurlOO::Simple;
+	return WWW::CurlOO::Simple->new( share => $share, %$share, @_ );
+}
 
 1;
 
@@ -30,3 +66,6 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
 =head1 NOTHING HERE
 
 Yeah, just a stub
+
+=cut
+# vim: ts=4:sw=4
