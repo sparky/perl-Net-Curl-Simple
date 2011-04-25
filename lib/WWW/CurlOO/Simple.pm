@@ -2,8 +2,8 @@ package WWW::CurlOO::Simple;
 
 use strict;
 use warnings;
-use WWW::CurlOO qw(/^CURL_VERSION_/);
-use WWW::CurlOO::Easy qw(/^CURLOPT_/ /^CURLPROXY_/);
+use WWW::CurlOO;
+use WWW::CurlOO::Easy qw(/^CURLOPT_(PROXY|POSTFIELDS)/ /^CURLPROXY_/);
 use Scalar::Util qw(looks_like_number);
 use URI;
 use URI::Escape qw(uri_escape);
@@ -43,7 +43,7 @@ my %proxytype = (
 	};
 }
 
-if ( WWW::CurlOO::version_info()->{features} & CURL_VERSION_LIBZ ) {
+if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
 	push @common_options, encoding => 'gzip,deflate';
 }
 
