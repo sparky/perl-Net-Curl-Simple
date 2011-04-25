@@ -43,6 +43,10 @@ my $multi;
 sub add
 {
 	my $easy = shift;
+
+	die "easy cannot finish()\n"
+		unless $easy->can( 'finish' );
+
 	$multi = $make_multi->() unless $multi;
 	$multi->add_handle( $easy );
 }
