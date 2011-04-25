@@ -30,25 +30,13 @@ sub _new
 }
 
 
-# socket callback: will be called by curl any time events on some
-# socket must be updated
 sub _cb_socket
 {
 	my ( $multi, $easy, $socket, $poll ) = @_;
 
-	# Right now $socket belongs to that $easy, but it can be
-	# shared with another easy handle if server supports persistent
-	# connections.
-	# This is why we register socket events inside multi object
-	# and not $easy.
-
 	# deregister old io events
 	delete $multi->{ "r$socket" };
 	delete $multi->{ "w$socket" };
-
-	# AnyEvent does not support registering a socket for both
-	# reading and writing. This is rarely used so there is no
-	# harm in separating the events.
 
 	# register read event
 	if ( $poll == CURL_POLL_IN or $poll == CURL_POLL_INOUT ) {
@@ -68,13 +56,9 @@ sub _cb_socket
 }
 
 
-# timer callback: It triggers timeout update. Timeout value tells
-# us how soon socket_action must be called if there were no actions
-# on sockets. This will allow curl to trigger timeout events.
 sub _cb_timer
 {
 	my ( $multi, $timeout_ms ) = @_;
-	#warn "on_timer( $timeout_ms )\n";
 
 	# deregister old timer
 	delete $multi->{timer};
@@ -86,16 +70,6 @@ sub _cb_timer
 	};
 
 	if ( $timeout_ms < 0 ) {
-		# Negative timeout means there is no timeout at all.
-		# Normally happens if there are no handles anymore.
-		#
-		# However, curl_multi_timeout(3) says:
-		#
-		# Note: if libcurl returns a -1 timeout here, it just means
-		# that libcurl currently has no stored timeout value. You
-		# must not wait too long (more than a few seconds perhaps)
-		# before you call curl_multi_perform() again.
-
 		if ( $multi->handles ) {
 			$multi->{timer} = AE::timer 10, 10, $cb;
 		}
@@ -107,30 +81,17 @@ sub _cb_timer
 	return 1;
 }
 
-# add one handle and kickstart download
 sub add_handle($$)
 {
 	my $multi = shift;
 	my $easy = shift;
 
-	die "easy cannot finish()\n"
-		unless $easy->can( 'finish' );
-
-	# Calling socket_action with default arguments will trigger
-	# socket callback and register IO events.
-	#
-	# It _must_ be called _after_ add_handle(); AE will take care
-	# of that.
-	#
-	# We are delaying the call because in some cases socket_action
-	# may finish inmediatelly (i.e. there was some error or we used
-	# persistent connections and server returned data right away)
-	# and it could confuse our application -- it would appear to
-	# have finished before it started.
+	# kickstart
 	AE::timer 0, 0, sub {
 		$multi->socket_action();
 	};
 
+	$multi->{active} = -1;
 	$multi->SUPER::add_handle( $easy );
 }
 
@@ -152,6 +113,26 @@ sub socket_action
 			die "I don't know what to do with message $msg.\n";
 		}
 	}
+
+	# check $multi->{active} and not something else because some finish()
+	# callback could have just added a new handle
+	if ( $multi->{active} == 0 and $multi->{cv} ) {
+		$multi->{cv}->send();
+	}
+}
+
+sub loop
+{
+	my $multi = shift;
+
+	# recursive loop calling is not allowed
+	return if $multi->{cv};
+
+	$multi->{cv} = AE::cv;
+	while ( $multi->handles ) {
+		$multi->{cv}->recv;
+	}
+	delete $multi->{cv};
 }
 
 1;
