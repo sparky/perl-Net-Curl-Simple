@@ -295,7 +295,7 @@ WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
      $curl->get( '/other_file', \&finished2 );
  }
 
- sub finished2;
+ sub finished2 { }
 
 =head1 CONSTRUCTOR
 
@@ -340,14 +340,15 @@ Get multiple getinfo values.
 
 =item ua
 
-Get parent WWW::CurlOO::Simple::UserAgent object.
+Get parent L<WWW::CurlOO::Simple::UserAgent> object.
 
 =item get( URI, CALLBACK, [TEMPORARY_OPTIONS] )
 
 Issue a GET request. CALLBACK will be called upon finishing with two arguments:
 WWW::CurlOO::Simple object and the result value. If URI is incomplete, full uri
 will be constructed using $curl->{referer} as base. WWW::CurlOO::Simple updates
-$curl->{referer} after every request.
+$curl->{referer} after every request. TEMPORARY_OPTIONS will be set for this
+request only.
 
  $curl->get( "http://full.uri/", sub {
      my $curl = shift;
@@ -364,12 +365,37 @@ Issue a HEAD request. Otherwise it is exactly the same as get().
 =item post( URI, CALLBACK, POST, [TEMPORARY_OPTIONS] )
 
 Issue a POST request. POST value can be either a scalar, in which case it will
-be sent literally, a HASHREF - will be uri-encoded, or a WWW::CurlOO::Form
-object (WWW::CurlOO::Simple::Form is OK as well).
+be sent literally, a HASHREF - will be uri-encoded, or a L<WWW::CurlOO::Form>
+object (L<WWW::CurlOO::Simple::Form> is OK as well).
 
  $curl->post( $uri, \&finished,
      { username => "foo", password => "bar" }
  );
 
+=back
+
+=head1 OPTIONS
+
+Options can be either CURLOPT_* values (import them from WWW::CurlOO::Easy),
+or literal names, preferably in lower case, without the CURLOPT_ preffix.
+For description of available options see L<curl_easy_setopt(3)>.
+
+Names for getinfo can also be either CURLINFO_* values or literal names
+without CURLINFO_ preffix.
+
+=head1 SEE ALSO
+
+L<WWW::CurlOO::Simple::UserAgent>
+L<WWW::CurlOO::Simple::Async>
+L<WWW::CurlOO::Easy>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as perl itself.
+
 =cut
+
 # vim: ts=4:sw=4
