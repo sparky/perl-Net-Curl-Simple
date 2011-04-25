@@ -16,8 +16,10 @@ my @backends = (
 );
 
 my $multi;
-sub _make_multi
+my $make_multi = sub
 {
+	$make_multi = undef;
+
 	no strict 'refs';
 	while ( my ( $impl, $pkg ) = splice @backends, 0, 2 ) {
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
@@ -30,14 +32,16 @@ sub _make_multi
 		}
 	}
 	@backends = ();
-	die "Could not load WWW::CurlOO::Simple::Async implementation\n"
+	die "Could not load " . __PACKAGE__ . " implementation\n"
 		unless $multi;
+
+	return $multi;
 }
 
 sub add
 {
 	my $easy = shift;
-	_make_multi() unless $multi;
+	$make_multi->() unless $multi;
 	$multi->add_handle( $easy );
 }
 
