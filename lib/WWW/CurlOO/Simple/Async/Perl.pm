@@ -25,7 +25,6 @@ sub loop($)
 
 		my $ret = $multi->perform();
 		if ( $active != $ret ) {
-			$active = $ret;
 			while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
 				if ( $msg == WWW::CurlOO::Multi::CURLMSG_DONE ) {
 					$multi->remove_handle( $easy );
@@ -34,19 +33,11 @@ sub loop($)
 					die "I don't know what to do with message $msg.\n";
 				}
 			}
+			$active = $multi->handles;
 		}
 	};
 
 	return;
-}
-
-END {
-	unless ( $loop_run ) {
-		warn __PACKAGE__ . ": loop was never run\n";
-		eval {
-			WWW::CurlOO::Simple::Async::loop();
-		};
-	}
 }
 
 1;
