@@ -15,11 +15,12 @@ my @backends = (
 	Perl => undef, # direct approach
 );
 
-my $multi;
-my $make_multi = sub
+my $make_multi;
+$make_multi = sub
 {
 	$make_multi = undef;
 
+	my $multi;
 	no strict 'refs';
 	while ( my ( $impl, $pkg ) = splice @backends, 0, 2 ) {
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
@@ -36,12 +37,13 @@ my $make_multi = sub
 		unless $multi;
 
 	return $multi;
-}
+};
 
+my $multi;
 sub add
 {
 	my $easy = shift;
-	$make_multi->() unless $multi;
+	$multi = $make_multi->() unless $multi;
 	$multi->add_handle( $easy );
 }
 
