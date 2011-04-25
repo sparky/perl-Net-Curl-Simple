@@ -54,10 +54,16 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
 
  use WWW::CurlOO::Simple::UserAgent;
 
- my $ua = WWW::CurlOO::Simple::UserAgent->new(
+ # options for all out user agents
+ WWW::CurlOO::Simple::UserAgent->setopt(
      useragent => "My::Downloader",
-     proxy => "socks5:localhost:9980",
  );
+
+ # this one uses socks for connection
+ my $ua = WWW::CurlOO::Simple::UserAgent->new(
+     proxy => "socks5://localhost:9980/",
+ );
+
  # those two requests share cookies and options set before
  $ua->curl()->get( $uri, \&finished );
  $ua->curl()->get( $uri2, \&finished );
@@ -68,9 +74,64 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
      print "document body: $curl->{body}\n";
  }
 
-=head1 NOTHING HERE
+=head1 SPECIAL METHODS
 
-Yeah, just a stub
+If setopt() or setopts() is called with package name and not an object, it will
+alter default UserAgent options. All newely-created user agents will share
+those options.
+
+=head1 CONSTRUCTOR
+
+=over
+
+=item new( [GLOBAL_OPTIONS] )
+
+Creates new WWW::CurlOO::Simple::UserAgent object.
+
+ my $ua = WWW::CurlOO::Simple::UserAgent->new( timeout => 60 );
+
+=back
+
+=head1 METHODS
+
+=over
+
+=item setopt( NAME, VALUE )
+
+Set option for all new curl instances. It will not alter any curl instances
+created already.
+
+=item setopts( GLOBAL_OPTIONS )
+
+Set multiple curl options.
+
+=item curl( [PERMANENT_OPTIONS] )
+
+Get new L<WWW::CurlOO::Simple> instance attached to this user agent. Options
+will be passed to new() constructor and will not affect any other instances.
+
+=back
+
+=head1 OPTIONS
+
+Options can be either CURLOPT_* values (import them from WWW::CurlOO::Easy),
+or literal names, preferably in lower case, without the CURLOPT_ preffix.
+For description of available options see L<curl_easy_setopt(3)>.
+
+=head1 SEE ALSO
+
+L<WWW::CurlOO::Simple>
+L<WWW::CurlOO::Simple::Async>
+L<WWW::CurlOO::Easy>
+L<WWW::CurlOO::Share>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as perl itself.
 
 =cut
+
 # vim: ts=4:sw=4
