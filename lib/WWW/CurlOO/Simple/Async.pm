@@ -3,11 +3,11 @@ package WWW::CurlOO::Simple::Async;
 use strict;
 use warnings;
 
+our $VERSION = '0.01';
+
 my @backends = (
 	AnyEvent => 'AnyEvent',
 	# POE => 'POE::Kernel',
-	# POE => 'Wx',
-	# POE => 'Prima',
 	# IO_Async => 'IO::Async::Loop',
 	# EV => 'EV',
 	# Glib => 'Glib',
