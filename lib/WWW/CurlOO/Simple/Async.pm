@@ -98,6 +98,62 @@ WWW::CurlOO::Simple::Async - perform WWW::CurlOO requests asynchronously
      print "document body: $curl->{body}\n";
  }
 
-=head1 NOTHING HERE
+=head1 DESCRIPTION
 
-Yeah, just a stub
+If your code is using L<WWW::CurlOO::Simple> correctly (that is - processing
+any finished requests in callbacks), the only change needed to add
+asynchronous support is adding:
+
+ use WWW::CurlOO::Simple::Async;
+
+It will pick up best Async backend automatically.
+
+=head1 FUNCTIONS
+
+=over
+
+=item loop
+
+Block until all requests are complete. Some backends may not support it.
+
+=back
+
+=head1 BACKENDS
+
+In order of preference.
+
+=over
+
+=item AnyEvent
+
+Will be used if AnyEvent has been loaded. There should be no need to use
+loop() but it should work in most cases.
+
+=item Irssi
+
+Will be used if Irssi has been loaded. Does not support loop() - it will not
+block.
+
+=item Perl
+
+Direct loop implementation in perl. Will be used if no other backend has been
+found. You must call loop() to get anything done.
+
+=back
+
+=head1 SEE ALSO
+
+L<WWW::CurlOO::Simple::UserAgent>
+L<WWW::CurlOO::Simple::Async>
+L<WWW::CurlOO::Easy>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as perl itself.
+
+=cut
+
+# vim: ts=4:sw=4
