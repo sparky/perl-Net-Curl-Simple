@@ -11,5 +11,7 @@ lib/WWW/CurlOO/Simple/UserAgent.pm
 t/01-use.t
 t/02-version.t
 t/10-simple.t
+t/20-async-perl.t
+t/21-async-anyevent.t
 t/90-pod.t
 t/91-pod-coverage.t
