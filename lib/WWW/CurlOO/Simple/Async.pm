@@ -2,8 +2,15 @@ package WWW::CurlOO::Simple::Async;
 
 use strict;
 use warnings;
+use WWW::CurlOO;
 
 our $VERSION = '0.01';
+
+unless ( WWW::CurlOO::version_info()->{features}
+		& WWW::CurlOO::CURL_VERSION_ASYNCHDNS ) {
+	warn "Please rebuild libcurl with AsynchDNS to avoid"
+		. " blocking DNS requests\n";
+}
 
 my @backends = (
 	AnyEvent => 'AnyEvent',
