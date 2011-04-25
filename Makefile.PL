@@ -15,7 +15,6 @@ WriteMakefile(
 	},
 	SIGN		=> 1,
 	LICENSE		=> 'perl',
-	MIN_PERL_VERSION => 5.008001,
 	CONFIGURE_REQUIRES => {
 		"ExtUtils::MakeMaker" => 0,
 	},
