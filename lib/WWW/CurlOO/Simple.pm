@@ -2,7 +2,7 @@ package WWW::CurlOO::Simple;
 
 use strict;
 use warnings;
-use WWW::CurlOO;
+use WWW::CurlOO 0.17;
 use WWW::CurlOO::Easy qw(/^CURLOPT_(PROXY|POSTFIELDS)/ /^CURLPROXY_/);
 use Scalar::Util qw(looks_like_number);
 use URI;

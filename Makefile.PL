@@ -19,7 +19,7 @@ WriteMakefile(
 		"ExtUtils::MakeMaker" => 0,
 	},
 	PREREQ_PM => {
-		"WWW::CurlOO" => "0.15",
+		"WWW::CurlOO" => "0.17",
 		"Test::More" => 0,
 	},
 	DIR			=> [], # no other Makefile.PL
