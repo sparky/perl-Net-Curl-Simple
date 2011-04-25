@@ -6,9 +6,19 @@ use WWW::CurlOO::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
 use Scalar::Util qw(looks_like_number);
 use base qw(WWW::CurlOO::Share);
 
+our $VERSION = 0.01;
+
+my %common_options = (
+	useragent => __PACKAGE__ . " v$VERSION",
+);
+
 sub setopt
 {
 	my ( $share, $opt, $val ) = @_;
+
+	$share = \%common_options
+		unless ref $share;
+
 	$share->{ $opt } = $val;
 }
 
@@ -16,6 +26,10 @@ sub setopts
 {
 	my $share = shift;
 	my %opts = @_;
+
+	$share = \%common_options
+		unless ref $share;
+
 	$share->{ keys %opts } = values %opts;
 }
 
@@ -27,7 +41,7 @@ sub new
 
 	$share->SUPER::setopt( CURLSHOPT_SHARE, CURL_LOCK_DATA_COOKIE );
 	$share->SUPER::setopt( CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS );
-	$share->setopts( @_ );
+	$share->setopts( %common_options, @_ );
 
 	return $share;
 }
@@ -50,7 +64,7 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
  use WWW::CurlOO::Simple::UserAgent;
 
  my $ua = WWW::CurlOO::Simple::UserAgent->new(
-     user_agent => "My::Downloader",
+     useragent => "My::Downloader",
      proxy => "socks5:localhost:9980",
  );
  # those two requests share cookies and options set before
