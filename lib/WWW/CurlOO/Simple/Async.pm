@@ -100,18 +100,24 @@ WWW::CurlOO::Simple::Async - perform WWW::CurlOO requests asynchronously
 
 =head1 DESCRIPTION
 
+If you use C<WWW::CurlOO::Simple::Async> your L<WWW::CurlOO::Simple> objects
+will no longer block.
+
 If your code is using L<WWW::CurlOO::Simple> correctly (that is - processing
 any finished requests in callbacks), the only change needed to add
 asynchronous support is adding:
 
  use WWW::CurlOO::Simple::Async;
 
-It will pick up best Async backend automatically but you may force it if
-you don't like the one detected:
+It will pick up best Async backend automatically. However, you may force
+some backend if you don't like the one detected:
 
  use Irssi;
  # Irssi backend would be picked
  use WWW::CurlOO::Simple::Async qw(AnyEvent);
+
+You may need to call loop() function if your code does not provide any
+suitable looping mechanism.
 
 =head1 FUNCTIONS
 
@@ -120,24 +126,27 @@ you don't like the one detected:
 =item loop
 
 Block until all requests are complete. Some backends may not support it.
+Most backends don't need it.
 
 =back
 
 =head1 BACKENDS
 
-In order of preference.
+In order of preference (C<WWW::CurlOO::Simple::Async> will try them it that
+order):
 
 =over
 
 =item Irssi
 
-Will be used if Irssi has been loaded. Does not support loop() - it will not
-block.
+Will be used if Irssi has been loaded. Does not support loop(), the function
+will issue a warning and won't block.
 
 =item AnyEvent
 
-Will be used if AnyEvent has been loaded. There should be no need to use
-loop() but it should work in most cases.
+Will be used if AnyEvent has been loaded. In most cases you will already have
+a looping mechanism on your own, but you can call loop() if you don't need
+anything better.
 
 =item Perl
 
