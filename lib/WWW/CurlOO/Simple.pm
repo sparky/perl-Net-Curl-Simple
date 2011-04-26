@@ -26,6 +26,10 @@ my @common_options = (
 	],
 );
 
+if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
+	push @common_options, encoding => 'gzip,deflate';
+}
+
 my %proxytype = (
 	http    => CURLPROXY_HTTP,
 	socks4  => CURLPROXY_SOCKS4,
@@ -41,10 +45,6 @@ my %proxytype = (
 	eval {
 		$proxytype{http10} = CURLPROXY_HTTP_1_0();
 	};
-}
-
-if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
-	push @common_options, encoding => 'gzip,deflate';
 }
 
 {
@@ -296,6 +296,18 @@ WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
  }
 
  sub finished2 { }
+
+=head1 DESCRIPTION
+
+C<WWW::CurlOO::Simple> is a thin layer over L<WWW::CurlOO::Easy>. It simplifies
+many common tasks, while providing access to full power of L<WWW::CurlOO::Easy>
+when its needed.
+
+L<WWW::CurlOO> excells in asynchronous operations, thanks to a great design of
+L<libcurl(3)>. To take advantage of that power C<WWW::CurlOO::Simple> interface
+uses callbacks even in synchronous mode, this should allow to quickly switch
+to async when the time comes. Of course there is nothing to stop you to use
+L<WWW::CurlOO::Simple::Async> from the beginning.
 
 =head1 CONSTRUCTOR
 
