@@ -6,6 +6,8 @@ use Scalar::Util qw(looks_like_number);
 use WWW::CurlOO::Form;
 use base qw(WWW::CurlOO::Form);
 
+our $VERSION = '0.01';
+
 {
 	my %optcache;
 
