@@ -74,6 +74,11 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
      print "document body: $curl->{body}\n";
  }
 
+=head1 DESCRIPTION
+
+C<WWW::CurlOO::Simple::UserAgent> provides a method to preset some options
+for multiple L<WWW::CurlOO::Simple> objects and allow them to share cookies.
+
 =head1 SPECIAL METHODS
 
 If setopt() or setopts() is called with package name and not an object, it will
