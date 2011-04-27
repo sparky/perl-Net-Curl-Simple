@@ -12,7 +12,5 @@ UserAgent:
 - ?
 
 Async:
-- add POE
 - add IO_Async
 - add Glib
-- maybe add EV

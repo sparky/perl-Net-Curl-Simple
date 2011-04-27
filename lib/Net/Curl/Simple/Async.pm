@@ -13,12 +13,10 @@ unless ( Net::Curl::version_info()->{features}
 }
 
 my @backends = (
+	EV => 'EV',
 	Irssi => 'Irssi',
 	POE => 'POE::Kernel',
 	AnyEvent => 'AnyEvent',
-	# IO_Async => 'IO::Async::Loop',
-	# EV => 'EV',
-	# Glib => 'Glib',
 	Perl => undef, # direct approach
 );
 

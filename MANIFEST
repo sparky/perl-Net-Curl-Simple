@@ -4,6 +4,7 @@ README
 lib/Net/Curl/Simple.pm
 lib/Net/Curl/Simple/Async.pm
 lib/Net/Curl/Simple/Async/AnyEvent.pm
+lib/Net/Curl/Simple/Async/EV.pm
 lib/Net/Curl/Simple/Async/Irssi.pm
 lib/Net/Curl/Simple/Async/POE.pm
 lib/Net/Curl/Simple/Async/Perl.pm
