@@ -4,7 +4,6 @@ TODO:
 - think what else to do
 
 Simple:
-- add put()
 - maybe add delete() -- CURLOPT_CUSTOMREQUEST
 - allow CODE in post()
 - test ftp and other protocols

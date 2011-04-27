@@ -273,6 +273,48 @@ sub post
 	);
 }
 
+# put some data
+sub put
+{
+	my ( $easy, $uri, $cb, $put ) = splice @_, 0, 4;
+	my @putopts;
+	if ( not ref $put ) {
+		die "Cannot put file $put\n"
+			unless -r $put;
+		open my $fin, '<', $put;
+		@putopts = (
+			readfunction => sub {
+				my ( $easy, $maxlen, $uservar ) = @_;
+				sysread $fin, my ( $r ), $maxlen;
+				return \$r;
+			},
+			infilesize => -s $put
+		);
+	} elsif ( ref $put eq 'SCALAR' ) {
+		my $data = $$put;
+		use bytes;
+		@putopts = (
+			readfunction => sub {
+				my ( $easy, $maxlen, $uservar ) = @_;
+				my $r = substr $data, 0, $maxlen, '';
+				return \$r;
+			},
+			infilesize => length $data
+		);
+	} elsif ( ref $put eq 'CODE' ) {
+		@putopts = (
+			readfunction => $put,
+		);
+	} else {
+		die "don't know how to put $put\n";
+	}
+	$easy->_perform( $uri, $cb,
+		@_,
+		put => 1,
+		@putopts
+	);
+}
+
 
 1;
 
@@ -382,6 +424,24 @@ object (L<WWW::CurlOO::Simple::Form> is OK as well).
 
  $curl->post( $uri, \&finished,
      { username => "foo", password => "bar" }
+ );
+
+=item put( URI, CALLBACK, PUTDATA, [TEMPORARY_OPTIONS] )
+
+Issue a PUT request. PUTDATA value can be either a file name, in which case the
+file contents will be uploaded, a SCALARREF -- refered data will be uploaded,
+or a CODEREF -- sub will be called like a C<CURLOPT_READFUNCTION> from
+L<WWW::CurlOO::Easy>, you should specify "infilesize" option in the last
+case.
+
+ $curl1->put( $uri, \&finished, "filename" );
+ $curl2->put( $uri, \&finished, \"some data" );
+ $curl3->put( $uri, \&finished, sub {
+         my ( $curl, $maxsize, $uservar ) = @_;
+		 read STDIN, my ( $r ), $maxsize;
+		 return \$r;
+     },
+     infilesize => EXPECTED_SIZE
  );
 
 =back
