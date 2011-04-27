@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 use Test::More tests => 18;
-use WWW::CurlOO::Simple::UserAgent;
+use Net::Curl::Simple::UserAgent;
 
-my $ua = WWW::CurlOO::Simple::UserAgent->new();
+my $ua = Net::Curl::Simple::UserAgent->new();
 my $got = 0;
 $ua->curl->get( "http://google.com/", sub {
 	my $curl = shift;

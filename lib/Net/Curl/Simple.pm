@@ -1,13 +1,13 @@
-package WWW::CurlOO::Simple;
+package Net::Curl::Simple;
 
 use strict;
 use warnings;
-use WWW::CurlOO 0.17;
-use WWW::CurlOO::Easy qw(/^CURLOPT_(PROXY|POSTFIELDS)/ /^CURLPROXY_/);
+use Net::Curl 0.17;
+use Net::Curl::Easy qw(/^CURLOPT_(PROXY|POSTFIELDS)/ /^CURLPROXY_/);
 use Scalar::Util qw(looks_like_number);
 use URI;
 use URI::Escape qw(uri_escape);
-use base qw(WWW::CurlOO::Easy);
+use base qw(Net::Curl::Easy);
 
 our $VERSION = '0.02';
 
@@ -26,7 +26,7 @@ my @common_options = (
 	],
 );
 
-if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
+if ( Net::Curl::version_info()->{features} & Net::Curl::CURL_VERSION_LIBZ ) {
 	push @common_options, encoding => 'gzip,deflate';
 }
 
@@ -57,7 +57,7 @@ my %proxytype = (
 		unless ( looks_like_number( $opt ) ) {
 			# convert option name to option number
 			unless ( exists $optcache{ $opt } ) {
-				eval "\$optcache{ \$opt } = WWW::CurlOO::Easy::CURLOPT_\U$opt";
+				eval "\$optcache{ \$opt } = Net::Curl::Easy::CURLOPT_\U$opt";
 				die "unrecognized literal option: $opt\n"
 					if $@;
 			}
@@ -114,7 +114,7 @@ sub setopts_temp
 		unless ( looks_like_number( $info ) ) {
 			# convert option name to option number
 			unless ( exists $infocache{ $info } ) {
-				eval "\$infocache{ \$info } = WWW::CurlOO::Easy::CURLINFO_\U$info";
+				eval "\$infocache{ \$info } = Net::Curl::Easy::CURLINFO_\U$info";
 				die "unrecognized literal info: $info\n"
 					if $@;
 			}
@@ -217,13 +217,13 @@ sub _perform
 	$easy->{headers} = [];
 	$easy->{in_use} = 1;
 
-	if ( my $add = UNIVERSAL::can( 'WWW::CurlOO::Simple::Async', '_add' ) ) {
+	if ( my $add = UNIVERSAL::can( 'Net::Curl::Simple::Async', '_add' ) ) {
 		$add->( $easy );
 	} else {
 		eval {
 			$easy->perform();
 		};
-		$easy->_finish( $@ || WWW::CurlOO::Easy::CURLE_OK );
+		$easy->_finish( $@ || Net::Curl::Easy::CURLE_OK );
 	}
 	return $easy;
 }
@@ -261,7 +261,7 @@ sub post
 	my @postopts;
 	if ( not ref $post ) {
 		@postopts = ( postfields => $post );
-	} elsif ( UNIVERSAL::isa( $post, 'WWW::CurlOO::Form' ) ) {
+	} elsif ( UNIVERSAL::isa( $post, 'Net::Curl::Form' ) ) {
 		@postopts = ( httppost => $post );
 	} elsif ( ref $post eq 'HASH' ) {
 		# handle utf8 ?
@@ -328,13 +328,13 @@ sub put
 
 =head1 NAME
 
-WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
+Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
 =head1 SYNOPSIS
 
- use WWW::CurlOO::Simple;
+ use Net::Curl::Simple;
 
- WWW::CurlOO::Simple->new->get( $uri, \&finished );
+ Net::Curl::Simple->new->get( $uri, \&finished );
 
  sub finished
  {
@@ -349,15 +349,15 @@ WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
 
 =head1 DESCRIPTION
 
-C<WWW::CurlOO::Simple> is a thin layer over L<WWW::CurlOO::Easy>. It simplifies
-many common tasks, while providing access to full power of L<WWW::CurlOO::Easy>
+C<Net::Curl::Simple> is a thin layer over L<Net::Curl::Easy>. It simplifies
+many common tasks, while providing access to full power of L<Net::Curl::Easy>
 when its needed.
 
-L<WWW::CurlOO> excells in asynchronous operations, thanks to a great design of
-L<libcurl(3)>. To take advantage of that power C<WWW::CurlOO::Simple> interface
+L<Net::Curl> excells in asynchronous operations, thanks to a great design of
+L<libcurl(3)>. To take advantage of that power C<Net::Curl::Simple> interface
 uses callbacks even in synchronous mode, this should allow to quickly switch
 to async when the time comes. Of course there is nothing to stop you to use
-L<WWW::CurlOO::Simple::Async> from the beginning.
+L<Net::Curl::Simple::Async> from the beginning.
 
 =head1 CONSTRUCTOR
 
@@ -365,9 +365,9 @@ L<WWW::CurlOO::Simple::Async> from the beginning.
 
 =item new( [PERMANENT_OPTIONS] )
 
-Creates new WWW::CurlOO::Simple object.
+Creates new Net::Curl::Simple object.
 
- my $curl = WWW::CurlOO::Simple->new( timeout => 60 );
+ my $curl = Net::Curl::Simple->new( timeout => 60 );
 
 =back
 
@@ -402,13 +402,13 @@ Get multiple getinfo values.
 
 =item ua
 
-Get parent L<WWW::CurlOO::Simple::UserAgent> object.
+Get parent L<Net::Curl::Simple::UserAgent> object.
 
 =item get( URI, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a GET request. CALLBACK will be called upon finishing with two arguments:
-WWW::CurlOO::Simple object and the result value. If URI is incomplete, full uri
-will be constructed using $curl->{referer} as base. WWW::CurlOO::Simple updates
+Net::Curl::Simple object and the result value. If URI is incomplete, full uri
+will be constructed using $curl->{referer} as base. Net::Curl::Simple updates
 $curl->{referer} after every request. TEMPORARY_OPTIONS will be set for this
 request only.
 
@@ -427,8 +427,8 @@ Issue a HEAD request. Otherwise it is exactly the same as get().
 =item post( URI, POST, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a POST request. POST value can be either a scalar, in which case it will
-be sent literally, a HASHREF - will be uri-encoded, or a L<WWW::CurlOO::Form>
-object (L<WWW::CurlOO::Simple::Form> is OK as well).
+be sent literally, a HASHREF - will be uri-encoded, or a L<Net::Curl::Form>
+object (L<Net::Curl::Simple::Form> is OK as well).
 
  $curl->post( $uri,
      { username => "foo", password => "bar" },
@@ -440,7 +440,7 @@ object (L<WWW::CurlOO::Simple::Form> is OK as well).
 Issue a PUT request. PUTDATA value can be either a file name, in which case the
 file contents will be uploaded, a SCALARREF -- refered data will be uploaded,
 or a CODEREF -- sub will be called like a C<CURLOPT_READFUNCTION> from
-L<WWW::CurlOO::Easy>, you should specify "infilesize" option in the last
+L<Net::Curl::Easy>, you should specify "infilesize" option in the last
 case.
 
  $curl1->put( $uri, "filename", \&finished );
@@ -458,7 +458,7 @@ case.
 
 =head1 OPTIONS
 
-Options can be either CURLOPT_* values (import them from WWW::CurlOO::Easy),
+Options can be either CURLOPT_* values (import them from Net::Curl::Easy),
 or literal names, preferably in lower case, without the CURLOPT_ preffix.
 For description of available options see L<curl_easy_setopt(3)>.
 
@@ -467,9 +467,9 @@ without CURLINFO_ preffix.
 
 =head1 SEE ALSO
 
-L<WWW::CurlOO::Simple::UserAgent>
-L<WWW::CurlOO::Simple::Async>
-L<WWW::CurlOO::Easy>
+L<Net::Curl::Simple::UserAgent>
+L<Net::Curl::Simple::Async>
+L<Net::Curl::Easy>
 
 =head1 COPYRIGHT
 

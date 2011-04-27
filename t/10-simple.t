@@ -1,10 +1,10 @@
 #
 #
 use Test::More tests => 16;
-use WWW::CurlOO::Simple;
+use Net::Curl::Simple;
 
 
-my $curl = WWW::CurlOO::Simple->new();
+my $curl = Net::Curl::Simple->new();
 my $result;
 $curl->get( "http://google.com/", sub { shift; $result = shift } );
 

@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 use Test::More tests => 18;
-use WWW::CurlOO::Simple;
-use WWW::CurlOO::Simple::Async qw(Perl);
+use Net::Curl::Simple;
+use Net::Curl::Simple::Async qw(Perl);
 
 my $got = 0;
-WWW::CurlOO::Simple->new->get( "http://google.com/", sub {
+Net::Curl::Simple->new->get( "http://google.com/", sub {
 	my $curl = shift;
 	my $result = shift;
 	$got = 1;
@@ -43,6 +43,6 @@ sub finish2
 
 is( $got, 0, 'request did not block' );
 
-WWW::CurlOO::Simple::Async::loop();
+Net::Curl::Simple::Async::loop();
 
 is( $got, 2, 'performed both requests' );

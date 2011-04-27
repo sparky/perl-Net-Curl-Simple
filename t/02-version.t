@@ -2,23 +2,23 @@
 #
 use Test::More tests => 3;
 
-use WWW::CurlOO::Simple;
-use WWW::CurlOO::Simple::UserAgent;
-use WWW::CurlOO::Simple::Async;
-use WWW::CurlOO::Simple::Form;
+use Net::Curl::Simple;
+use Net::Curl::Simple::UserAgent;
+use Net::Curl::Simple::Async;
+use Net::Curl::Simple::Form;
 
 is(
-	$WWW::CurlOO::Simple::VERSION,
-	$WWW::CurlOO::Simple::UserAgent::VERSION,
+	$Net::Curl::Simple::VERSION,
+	$Net::Curl::Simple::UserAgent::VERSION,
 	'UA version matches'
 );
 is(
-	$WWW::CurlOO::Simple::VERSION,
-	$WWW::CurlOO::Simple::Async::VERSION,
+	$Net::Curl::Simple::VERSION,
+	$Net::Curl::Simple::Async::VERSION,
 	'Async version matches'
 );
 is(
-	$WWW::CurlOO::Simple::VERSION,
-	$WWW::CurlOO::Simple::Form::VERSION,
+	$Net::Curl::Simple::VERSION,
+	$Net::Curl::Simple::Form::VERSION,
 	'Form version matches'
 );

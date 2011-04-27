@@ -1,10 +1,10 @@
-package WWW::CurlOO::Simple::Form;
+package Net::Curl::Simple::Form;
 
 use strict;
 use warnings;
 use Scalar::Util qw(looks_like_number);
-use WWW::CurlOO::Form;
-use base qw(WWW::CurlOO::Form);
+use Net::Curl::Form;
+use base qw(Net::Curl::Form);
 
 our $VERSION = '0.02';
 
@@ -21,9 +21,9 @@ our $VERSION = '0.02';
 				# convert option name to option number
 				unless ( exists $optcache{ $opt } ) {
 					eval '$optcache{ $opt } = '
-						. "WWW::CurlOO::Form::CURLFORM_COPY\U$opt";
+						. "Net::Curl::Form::CURLFORM_COPY\U$opt";
 					eval '$optcache{ $opt } = '
-						. "WWW::CurlOO::Form::CURLFORM_\U$opt"
+						. "Net::Curl::Form::CURLFORM_\U$opt"
 						if $@;
 					die "unrecognized literal option: $opt\n"
 						if $@;
@@ -57,25 +57,25 @@ sub file
 
 =head1 NAME
 
-WWW::CurlOO::Simple::Form - simplify WWW::CurlOO::Form a little
+Net::Curl::Simple::Form - simplify Net::Curl::Form a little
 
 =head1 SYNOPSIS
 
- use WWW::CurlOO::Simple;
- use WWW::CurlOO::Simple::Form;
+ use Net::Curl::Simple;
+ use Net::Curl::Simple::Form;
 
- my $form = WWW::CurlOO::Simple::Form->new();
+ my $form = Net::Curl::Simple::Form->new();
  $form->contents( foo => "bar" )->file( photos => glob "*.jpg" );
  $form->add( name => "html", contents => "<html></html>",
      contenttype => "text/html" );
 
- WWW::CurlOO::Simple->new->post( $uri, \&finished, $form );
+ Net::Curl::Simple->new->post( $uri, \&finished, $form );
 
 =head1 DESCRIPTION
 
-C<WWW::CurlOO::Simple::Form> is a thin layer over L<WWW::CurlOO::Form>.
+C<Net::Curl::Simple::Form> is a thin layer over L<Net::Curl::Form>.
 It simplifies common tasks, while providing access to full power of
-L<WWW::CurlOO::Form> when its needed.
+L<Net::Curl::Form> when its needed.
 
 =head1 CONSTRUCTOR
 
@@ -85,7 +85,7 @@ L<WWW::CurlOO::Form> when its needed.
 
 Creates an empty multipart/formdata object.
 
- my $form = WWW::CurlOO::Simple::Form->new;
+ my $form = Net::Curl::Simple::Form->new;
 
 =back
 
@@ -96,7 +96,7 @@ Creates an empty multipart/formdata object.
 =item add( OPTIONS )
 
 Adds a section to this form. Behaves in the same way as add() from
-L<WWW::CurlOO::Form> but also accepts literal option names. Returns its own
+L<Net::Curl::Form> but also accepts literal option names. Returns its own
 object to allow chaining.
 
 =item contents( NAME, CONTENTS )
@@ -111,8 +111,8 @@ Shortcut for add( name => NAME, file => FILE1, file => FILE2, ... ).
 
 =head1 SEE ALSO
 
-L<WWW::CurlOO::Simple>
-L<WWW::CurlOO::Form>
+L<Net::Curl::Simple>
+L<Net::Curl::Form>
 L<curl_formadd(3)>
 
 =head1 COPYRIGHT

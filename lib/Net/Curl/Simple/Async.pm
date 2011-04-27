@@ -1,13 +1,13 @@
-package WWW::CurlOO::Simple::Async;
+package Net::Curl::Simple::Async;
 
 use strict;
 use warnings;
-use WWW::CurlOO;
+use Net::Curl;
 
 our $VERSION = '0.02';
 
-unless ( WWW::CurlOO::version_info()->{features}
-		& WWW::CurlOO::CURL_VERSION_ASYNCHDNS ) {
+unless ( Net::Curl::version_info()->{features}
+		& Net::Curl::CURL_VERSION_ASYNCHDNS ) {
 	warn "Please rebuild libcurl with AsynchDNS to avoid"
 		. " blocking DNS requests\n";
 }
@@ -78,19 +78,19 @@ sub loop
 
 =head1 NAME
 
-WWW::CurlOO::Simple::Async - perform WWW::CurlOO requests asynchronously
+Net::Curl::Simple::Async - perform Net::Curl requests asynchronously
 
 =head1 SYNOPSIS
 
- use WWW::CurlOO::Simple;
- use WWW::CurlOO::Simple::Async;
+ use Net::Curl::Simple;
+ use Net::Curl::Simple::Async;
 
  # this does not block now
- WWW::CurlOO::Simple->new()->get( $uri, \&finished );
- WWW::CurlOO::Simple->new()->get( $uri2, \&finished );
+ Net::Curl::Simple->new()->get( $uri, \&finished );
+ Net::Curl::Simple->new()->get( $uri2, \&finished );
 
  # block until all requests are finished, may not be needed
- WWW::CurlOO::Simple::Async::loop();
+ Net::Curl::Simple::Async::loop();
 
  sub finished
  {
@@ -100,21 +100,21 @@ WWW::CurlOO::Simple::Async - perform WWW::CurlOO requests asynchronously
 
 =head1 DESCRIPTION
 
-If you use C<WWW::CurlOO::Simple::Async> your L<WWW::CurlOO::Simple> objects
+If you use C<Net::Curl::Simple::Async> your L<Net::Curl::Simple> objects
 will no longer block.
 
-If your code is using L<WWW::CurlOO::Simple> correctly (that is - processing
+If your code is using L<Net::Curl::Simple> correctly (that is - processing
 any finished requests in callbacks), the only change needed to add
 asynchronous support is adding:
 
- use WWW::CurlOO::Simple::Async;
+ use Net::Curl::Simple::Async;
 
 It will pick up best Async backend automatically. However, you may force
 some backend if you don't like the one detected:
 
  use Irssi;
  # Irssi backend would be picked
- use WWW::CurlOO::Simple::Async qw(AnyEvent);
+ use Net::Curl::Simple::Async qw(AnyEvent);
 
 You may need to call loop() function if your code does not provide any
 suitable looping mechanism.
@@ -132,7 +132,7 @@ Most backends don't need it.
 
 =head1 BACKENDS
 
-In order of preference (C<WWW::CurlOO::Simple::Async> will try them it that
+In order of preference (C<Net::Curl::Simple::Async> will try them it that
 order):
 
 =over
@@ -157,9 +157,9 @@ found. You must call loop() to get anything done.
 
 =head1 SEE ALSO
 
-L<WWW::CurlOO::Simple::UserAgent>
-L<WWW::CurlOO::Simple::Async>
-L<WWW::CurlOO::Easy>
+L<Net::Curl::Simple::UserAgent>
+L<Net::Curl::Simple::Async>
+L<Net::Curl::Easy>
 
 =head1 COPYRIGHT
 

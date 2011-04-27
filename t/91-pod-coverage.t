@@ -11,6 +11,6 @@ plan skip_all => "Test::Pod::Coverage 1.04 required for testing POD coverage" if
 
 plan tests => 4;
 foreach my $ext ( '', qw(::UserAgent ::Async ::Form) ) {
-	pod_coverage_ok( 'WWW::CurlOO::Simple'.$ext,
-		"WWW::CurlOO::Simple$ext has proper POD coverage" );
+	pod_coverage_ok( 'Net::Curl::Simple'.$ext,
+		"Net::Curl::Simple$ext has proper POD coverage" );
 }

@@ -4,13 +4,13 @@ use ExtUtils::MakeMaker;
 # older perl seems to choke on it, maybe utf8::upgrade would work ?
 my $l_ = $] >= 5.010 ? "ł" : "l";
 WriteMakefile(
-	NAME 		=> 'WWW::CurlOO::Simple',
-	VERSION_FROM	=> 'lib/WWW/CurlOO/Simple.pm',
-	ABSTRACT_FROM	=> 'lib/WWW/CurlOO/Simple.pm',
+	NAME 		=> 'Net::Curl::Simple',
+	VERSION_FROM	=> 'lib/Net/Curl/Simple.pm',
+	ABSTRACT_FROM	=> 'lib/Net/Curl/Simple.pm',
 	AUTHOR		=> "Przemys${l_}aw Iskra <sparky at pld-linux.org>",
 	META_MERGE	=> {
 		resources => {
-			repository => 'https://github.com/sparky/perl-WWW-CurlOO-Simple'
+			repository => 'https://github.com/sparky/perl-Net-Curl-Simple'
 		},
 	},
 	SIGN		=> 1,
@@ -19,7 +19,7 @@ WriteMakefile(
 		"ExtUtils::MakeMaker" => 0,
 	},
 	PREREQ_PM => {
-		"WWW::CurlOO" => "0.17",
+		"Net::Curl" => "0.17",
 		"Test::More" => 0,
 	},
 	DIR			=> [], # no other Makefile.PL

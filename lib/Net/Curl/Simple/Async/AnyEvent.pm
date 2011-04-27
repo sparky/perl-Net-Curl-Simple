@@ -1,15 +1,15 @@
-package WWW::CurlOO::Simple::Async::AnyEvent;
+package Net::Curl::Simple::Async::AnyEvent;
 
 use strict;
 use warnings;
 use AnyEvent;
-use WWW::CurlOO::Multi qw(/^CURL_POLL_/ /^CURL_CSELECT_/);
-use base qw(WWW::CurlOO::Multi);
+use Net::Curl::Multi qw(/^CURL_POLL_/ /^CURL_CSELECT_/);
+use base qw(Net::Curl::Multi);
 
 BEGIN {
-	if ( not WWW::CurlOO::Multi->can( 'CURLMOPT_TIMERFUNCTION' ) ) {
-		die "WWW::CurlOO::Multi is missing timer callback,\n" .
-			"rebuild WWW::CurlOO with libcurl 7.16.0 or newer\n";
+	if ( not Net::Curl::Multi->can( 'CURLMOPT_TIMERFUNCTION' ) ) {
+		die "Net::Curl::Multi is missing timer callback,\n" .
+			"rebuild Net::Curl with libcurl 7.16.0 or newer\n";
 	}
 }
 
@@ -19,9 +19,9 @@ sub new
 
 	my $multi = $class->SUPER::new();
 
-	$multi->setopt( WWW::CurlOO::Multi::CURLMOPT_SOCKETFUNCTION,
+	$multi->setopt( Net::Curl::Multi::CURLMOPT_SOCKETFUNCTION,
 		\&_cb_socket );
-	$multi->setopt( WWW::CurlOO::Multi::CURLMOPT_TIMERFUNCTION,
+	$multi->setopt( Net::Curl::Multi::CURLMOPT_TIMERFUNCTION,
 		\&_cb_timer );
 
 	$multi->{active} = -1;
@@ -65,7 +65,7 @@ sub _cb_timer
 
 	my $cb = sub {
 		$multi->socket_action(
-			WWW::CurlOO::Multi::CURL_SOCKET_TIMEOUT
+			Net::Curl::Multi::CURL_SOCKET_TIMEOUT
 		);
 	};
 
@@ -106,7 +106,7 @@ sub socket_action
 	$multi->{active} = $active;
 
 	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
-		if ( $msg == WWW::CurlOO::Multi::CURLMSG_DONE ) {
+		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
 			$multi->remove_handle( $easy );
 			$easy->_finish( $result );
 		} else {

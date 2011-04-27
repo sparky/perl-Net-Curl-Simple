@@ -1,10 +1,10 @@
-package WWW::CurlOO::Simple::UserAgent;
+package Net::Curl::Simple::UserAgent;
 
 use strict;
 use warnings;
-use WWW::CurlOO::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
+use Net::Curl::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
 use Scalar::Util qw(looks_like_number);
-use base qw(WWW::CurlOO::Share);
+use base qw(Net::Curl::Share);
 
 our $VERSION = 0.02;
 
@@ -40,27 +40,27 @@ sub new
 sub curl
 {
 	my $share = shift;
-	require WWW::CurlOO::Simple;
-	return WWW::CurlOO::Simple->new( %$share, @_, share => $share );
+	require Net::Curl::Simple;
+	return Net::Curl::Simple->new( %$share, @_, share => $share );
 }
 
 1;
 
 =head1 NAME
 
-WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::Simple objects
+Net::Curl::Simple::UserAgent - share some data between multiple Net::Curl::Simple objects
 
 =head1 SYNOPSIS
 
- use WWW::CurlOO::Simple::UserAgent;
+ use Net::Curl::Simple::UserAgent;
 
  # options for all out user agents
- WWW::CurlOO::Simple::UserAgent->setopt(
+ Net::Curl::Simple::UserAgent->setopt(
      useragent => "My::Downloader",
  );
 
  # this one uses socks for connection
- my $ua = WWW::CurlOO::Simple::UserAgent->new(
+ my $ua = Net::Curl::Simple::UserAgent->new(
      proxy => "socks5://localhost:9980/",
  );
 
@@ -76,8 +76,8 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
 
 =head1 DESCRIPTION
 
-C<WWW::CurlOO::Simple::UserAgent> provides a method to preset some options
-for multiple L<WWW::CurlOO::Simple> objects and allow them to share cookies.
+C<Net::Curl::Simple::UserAgent> provides a method to preset some options
+for multiple L<Net::Curl::Simple> objects and allow them to share cookies.
 
 =head1 SPECIAL METHODS
 
@@ -91,9 +91,9 @@ those options.
 
 =item new( [GLOBAL_OPTIONS] )
 
-Creates new WWW::CurlOO::Simple::UserAgent object.
+Creates new Net::Curl::Simple::UserAgent object.
 
- my $ua = WWW::CurlOO::Simple::UserAgent->new( timeout => 60 );
+ my $ua = Net::Curl::Simple::UserAgent->new( timeout => 60 );
 
 =back
 
@@ -112,23 +112,23 @@ Set multiple curl options.
 
 =item curl( [PERMANENT_OPTIONS] )
 
-Get new L<WWW::CurlOO::Simple> instance attached to this user agent. Options
+Get new L<Net::Curl::Simple> instance attached to this user agent. Options
 will be passed to new() constructor and will not affect any other instances.
 
 =back
 
 =head1 OPTIONS
 
-Options can be either CURLOPT_* values (import them from WWW::CurlOO::Easy),
+Options can be either CURLOPT_* values (import them from Net::Curl::Easy),
 or literal names, preferably in lower case, without the CURLOPT_ preffix.
 For description of available options see L<curl_easy_setopt(3)>.
 
 =head1 SEE ALSO
 
-L<WWW::CurlOO::Simple>
-L<WWW::CurlOO::Simple::Async>
-L<WWW::CurlOO::Easy>
-L<WWW::CurlOO::Share>
+L<Net::Curl::Simple>
+L<Net::Curl::Simple::Async>
+L<Net::Curl::Easy>
+L<Net::Curl::Share>
 
 =head1 COPYRIGHT
 

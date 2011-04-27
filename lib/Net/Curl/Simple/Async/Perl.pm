@@ -1,9 +1,9 @@
-package WWW::CurlOO::Simple::Async::Perl;
+package Net::Curl::Simple::Async::Perl;
 
 use strict;
 use warnings;
-use WWW::CurlOO::Multi;
-use base qw(WWW::CurlOO::Multi);
+use Net::Curl::Multi;
+use base qw(Net::Curl::Multi);
 
 my $loop_run = 0;
 
@@ -26,7 +26,7 @@ sub loop($)
 		my $ret = $multi->perform();
 		if ( $active != $ret ) {
 			while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
-				if ( $msg == WWW::CurlOO::Multi::CURLMSG_DONE ) {
+				if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
 					$multi->remove_handle( $easy );
 					$easy->_finish( $result );
 				} else {
