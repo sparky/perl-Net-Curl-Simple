@@ -2,6 +2,29 @@ package Net::Curl::Simple::Async::Irssi;
 
 use strict;
 use Irssi ();
+
+our @ISA;
+
+sub _init {
+   my $pkg = caller;
+
+   push @ISA, $pkg;
+
+   local $/;
+   eval "package $pkg; " . <DATA>;
+   print __PACKAGE__ . " compilation error: $@" if $@;
+
+   close DATA;
+}
+
+Irssi::command( "/script exec -permanent " . __PACKAGE__ . "::_init()" );
+
+1;
+
+__DATA__
+
+use strict;
+use Irssi ();
 use Net::Curl::Multi qw(/^CURL_POLL_/ /^CURL_CSELECT_/);
 use base qw(Net::Curl::Multi);
 
