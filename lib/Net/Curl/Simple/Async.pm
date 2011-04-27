@@ -14,8 +14,8 @@ unless ( Net::Curl::version_info()->{features}
 
 my @backends = (
 	Irssi => 'Irssi',
+	POE => 'POE::Kernel',
 	AnyEvent => 'AnyEvent',
-	# POE => 'POE::Kernel',
 	# IO_Async => 'IO::Async::Loop',
 	# EV => 'EV',
 	# Glib => 'Glib',
