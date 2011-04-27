@@ -231,7 +231,9 @@ sub _perform
 # get some uri
 sub get
 {
-	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
+	my ( $easy, $uri ) = splice @_, 0, 2;
+	my $cb = pop;
+
 	$easy->_perform( $uri, $cb,
 		@_,
 		httpget => 1,
@@ -241,7 +243,9 @@ sub get
 # request head on some uri
 sub head
 {
-	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
+	my ( $easy, $uri ) = splice @_, 0, 2;
+	my $cb = pop;
+
 	$easy->_perform( $uri, $cb,
 		@_,
 		nobody => 1,
@@ -251,7 +255,9 @@ sub head
 # post data to some uri
 sub post
 {
-	my ( $easy, $uri, $cb, $post ) = splice @_, 0, 4;
+	my ( $easy, $uri, $post ) = splice @_, 0, 3;
+	my $cb = pop;
+
 	my @postopts;
 	if ( not ref $post ) {
 		@postopts = ( postfields => $post );
@@ -276,7 +282,9 @@ sub post
 # put some data
 sub put
 {
-	my ( $easy, $uri, $cb, $put ) = splice @_, 0, 4;
+	my ( $easy, $uri, $put ) = splice @_, 0, 3;
+	my $cb = pop;
+
 	my @putopts;
 	if ( not ref $put ) {
 		die "Cannot put file $put\n"
@@ -396,7 +404,7 @@ Get multiple getinfo values.
 
 Get parent L<WWW::CurlOO::Simple::UserAgent> object.
 
-=item get( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+=item get( URI, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a GET request. CALLBACK will be called upon finishing with two arguments:
 WWW::CurlOO::Simple object and the result value. If URI is incomplete, full uri
@@ -412,21 +420,22 @@ request only.
      $curl->get( "/partial/uri", sub {} );
  } );
 
-=item head( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+=item head( URI, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a HEAD request. Otherwise it is exactly the same as get().
 
-=item post( URI, CALLBACK, POST, [TEMPORARY_OPTIONS] )
+=item post( URI, POST, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a POST request. POST value can be either a scalar, in which case it will
 be sent literally, a HASHREF - will be uri-encoded, or a L<WWW::CurlOO::Form>
 object (L<WWW::CurlOO::Simple::Form> is OK as well).
 
- $curl->post( $uri, \&finished,
-     { username => "foo", password => "bar" }
+ $curl->post( $uri,
+     { username => "foo", password => "bar" },
+	 \&finished
  );
 
-=item put( URI, CALLBACK, PUTDATA, [TEMPORARY_OPTIONS] )
+=item put( URI, PUTDATA, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a PUT request. PUTDATA value can be either a file name, in which case the
 file contents will be uploaded, a SCALARREF -- refered data will be uploaded,
@@ -434,14 +443,15 @@ or a CODEREF -- sub will be called like a C<CURLOPT_READFUNCTION> from
 L<WWW::CurlOO::Easy>, you should specify "infilesize" option in the last
 case.
 
- $curl1->put( $uri, \&finished, "filename" );
- $curl2->put( $uri, \&finished, \"some data" );
- $curl3->put( $uri, \&finished, sub {
+ $curl1->put( $uri, "filename", \&finished );
+ $curl2->put( $uri, \"some data", \&finished );
+ $curl3->put( $uri, sub {
          my ( $curl, $maxsize, $uservar ) = @_;
 		 read STDIN, my ( $r ), $maxsize;
 		 return \$r;
      },
-     infilesize => EXPECTED_SIZE
+     infilesize => EXPECTED_SIZE,
+	 \&finished
  );
 
 =back
