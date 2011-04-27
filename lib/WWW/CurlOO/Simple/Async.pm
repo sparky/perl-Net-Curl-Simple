@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use WWW::CurlOO;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 unless ( WWW::CurlOO::version_info()->{features}
 		& WWW::CurlOO::CURL_VERSION_ASYNCHDNS ) {

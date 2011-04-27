@@ -9,7 +9,7 @@ use URI;
 use URI::Escape qw(uri_escape);
 use base qw(WWW::CurlOO::Easy);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my @common_options = (
 	timeout => 300,
