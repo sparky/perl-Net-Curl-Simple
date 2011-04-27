@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Net::Curl;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 unless ( Net::Curl::version_info()->{features}
 		& Net::Curl::CURL_VERSION_ASYNCHDNS ) {
