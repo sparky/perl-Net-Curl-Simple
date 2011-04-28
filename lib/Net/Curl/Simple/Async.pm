@@ -12,12 +12,40 @@ unless ( Net::Curl::version_info()->{features}
 		. " blocking DNS requests\n";
 }
 
+# load specified backend (left) if appropriate module (right)
+# is loaded already
 my @backends = (
+	# backends we support directly
 	EV => 'EV',
 	Irssi => 'Irssi',
 	POE => 'POE::Kernel',
 	AnyEvent => 'AnyEvent',
-	Perl => undef, # direct approach
+
+	# AnyEvent supports some implementations we don't
+	AnyEvent => 'AnyEvent::Impl::Perl',
+	AnyEvent => 'Cocoa::EventLoop',
+	AnyEvent => 'Event',
+	AnyEvent => 'Event::Lib',
+	AnyEvent => 'Glib',
+	AnyEvent => 'IO::Async::Loop',
+	AnyEvent => 'Qt',
+	AnyEvent => 'Tk',
+
+	# some POE::Loop::* implementations,
+	# AnyEvent is preffered as it gives us a more
+	# direct access to those backends
+	POE => 'Event',
+	POE => 'Event::Lib',
+	POE => 'Glib',
+	POE => 'Gtk', # not gtk2
+	POE => 'Prima',
+	POE => 'Tk',
+	POE => 'Wx',
+
+	# forced backends: try to load if nothing better detected
+	EV => undef, # most efficient implementation
+	AnyEvent => undef, # AnyEvent may have some nice alternative
+	Perl => undef, # will work everywhere and much faster than POE
 );
 
 my $make_multi;
@@ -31,7 +59,7 @@ $make_multi = sub
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
 			my $implpkg = join '::', __PACKAGE__, $impl;
 			eval "require $implpkg";
-			die $@ if $@;
+			next if $@;
 			eval {
 				$multi = $implpkg->new();
 			};
@@ -48,10 +76,9 @@ $make_multi = sub
 sub import
 {
 	my $class = shift;
-	my $impl = shift;
-	return if not $impl or not $make_multi;
+	return if not @_ or not $make_multi;
 	# force some implementation
-	@backends = ( $impl, undef );
+	@backends = map +($_, undef), @_;
 }
 
 my $multi;
@@ -108,11 +135,11 @@ asynchronous support is adding:
  use Net::Curl::Simple::Async;
 
 It will pick up best Async backend automatically. However, you may force
-some backend if you don't like the one detected:
+some backends if you don't like the one detected:
 
  use Irssi;
  # Irssi backend would be picked
- use Net::Curl::Simple::Async qw(AnyEvent);
+ use Net::Curl::Simple::Async qw(AnyEvent POE);
 
 You may need to call loop() function if your code does not provide any
 suitable looping mechanism.
