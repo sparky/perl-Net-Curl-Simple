@@ -21,6 +21,7 @@ WriteMakefile(
 	PREREQ_PM => {
 		"Net::Curl" => "0.17",
 		"Test::More" => 0,
+		"URI" => 0,
 	},
 	DIR			=> [], # no other Makefile.PL
 );
