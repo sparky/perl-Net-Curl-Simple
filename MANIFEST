@@ -8,6 +8,7 @@ lib/Net/Curl/Simple/Async/EV.pm
 lib/Net/Curl/Simple/Async/Irssi.pm
 lib/Net/Curl/Simple/Async/POE.pm
 lib/Net/Curl/Simple/Async/Perl.pm
+lib/Net/Curl/Simple/Coro.pm
 lib/Net/Curl/Simple/Form.pm
 lib/Net/Curl/Simple/UserAgent.pm
 t/01-use.t
@@ -19,5 +20,6 @@ t/22-async-poe.t
 t/23-async-ev.t
 t/24-async-any.t
 t/30-useragent-simple.t
+t/40-coro-noasync.t
 t/90-pod.t
 t/91-pod-coverage.t
