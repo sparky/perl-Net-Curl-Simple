@@ -17,6 +17,7 @@ t/20-async-perl.t
 t/21-async-anyevent.t
 t/22-async-poe.t
 t/23-async-ev.t
+t/24-async-any.t
 t/30-useragent-simple.t
 t/90-pod.t
 t/91-pod-coverage.t
