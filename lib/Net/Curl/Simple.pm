@@ -219,6 +219,9 @@ sub _perform
 
 	if ( my $add = UNIVERSAL::can( 'Net::Curl::Simple::Async', '_add' ) ) {
 		$add->( $easy );
+	} elsif ( UNIVERSAL::can( 'Coro', 'cede' ) ) {
+		require Net::Curl::Simple::Coro;
+		Net::Curl::Simple::Coro::_perform( $easy );
 	} else {
 		eval {
 			$easy->perform();
