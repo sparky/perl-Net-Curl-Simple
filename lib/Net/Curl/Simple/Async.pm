@@ -6,11 +6,12 @@ use Net::Curl;
 
 our $VERSION = '0.03';
 
-unless ( Net::Curl::version_info()->{features}
-		& Net::Curl::CURL_VERSION_ASYNCHDNS ) {
-	warn "Please rebuild libcurl with AsynchDNS to avoid"
-		. " blocking DNS requests\n";
-}
+use constant
+	can_asynchdns => ( ( Net::Curl::version_info()->{features}
+		& Net::Curl::CURL_VERSION_ASYNCHDNS ) != 0 );
+
+sub warn_noasynchdns($) { warn @_ }
+
 
 # load specified backend (left) if appropriate module (right)
 # is loaded already
@@ -48,12 +49,11 @@ my @backends = (
 	Perl => undef, # will work everywhere and much faster than POE
 );
 
-my $make_multi;
-$make_multi = sub
-{
-	$make_multi = undef;
 
+sub _get_multi()
+{
 	my $multi;
+
 	no strict 'refs';
 	while ( my ( $impl, $pkg ) = splice @backends, 0, 2 ) {
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
@@ -70,33 +70,36 @@ $make_multi = sub
 	die "Could not load " . __PACKAGE__ . " implementation\n"
 		unless $multi;
 
+	warn_noasynchdns "Please rebuild libcurl with AsynchDNS to avoid"
+		. " blocking DNS requests\n" unless can_asynchdns;
+
+	no warnings 'redefine';
+	*_get_multi = sub () { $multi };
+
 	return $multi;
 };
 
 sub import
 {
 	my $class = shift;
-	return if not @_ or not $make_multi;
+	return if not @_;
 	# force some implementation
 	@backends = map +($_, undef), @_;
 }
 
-my $multi;
-sub _add
+sub _add($)
 {
 	my $easy = shift;
 
 	die "easy cannot _finish()\n"
 		unless $easy->can( '_finish' );
 
-	$multi = $make_multi->() unless $multi;
-	$multi->add_handle( $easy );
+	_get_multi->add_handle( $easy );
 }
 
 sub loop
 {
-	return unless $multi;
-	$multi->loop();
+	_get_multi->loop();
 }
 
 1;
@@ -152,6 +155,25 @@ suitable looping mechanism.
 
 Block until all requests are complete. Some backends may not support it.
 Most backends don't need it.
+
+=item can_asynchdns
+
+Will tell you whether libcurl has AsyncDNS capability.
+
+=item warn_noasynchdns
+
+Function used to warn about lack of AsynchDNS. You can overwrite it if you
+hate the warning.
+
+ {
+     no warnings;
+     # don't warn at all
+     *Net::Curl::Simple::Async::warn_noasynchdns = sub ($) { };
+ }
+
+Lack of AsynchDNS support in libcurl can severely reduce
+C<Net::Curl::Simple::Async> efficiency. You should not disable the warning,
+just replace it with a method more suitable in your application.
 
 =back
 
