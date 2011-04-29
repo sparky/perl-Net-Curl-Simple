@@ -231,6 +231,22 @@ sub _perform
 	return $easy;
 }
 
+# results
+#sub code
+#{
+#	return (shift)->{code};
+#}
+
+sub headers
+{
+	return @{ (shift)->{headers} };
+}
+
+sub content
+{
+	return (shift)->{body};
+}
+
 # get some uri
 sub get
 {
@@ -456,6 +472,14 @@ case.
      infilesize => EXPECTED_SIZE,
 	 \&finished
  );
+
+=item headers
+
+Return a list of all headers. Equivalent to C<@{ $curl->{headers} }>.
+
+=item content
+
+Return transfer content. Equivalent to C<$curl->{body}>.
 
 =back
 
