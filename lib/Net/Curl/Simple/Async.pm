@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Net::Curl;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use constant
 	can_asynchdns => ( ( Net::Curl::version_info()->{features}
