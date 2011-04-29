@@ -2,7 +2,7 @@ package Net::Curl::Simple::Async::EV;
 
 use strict;
 use warnings;
-use EV;
+use EV 4.00;
 use Net::Curl::Multi qw(/^CURL_POLL_/ /^CURL_CSELECT_/);
 use base qw(Net::Curl::Multi);
 
