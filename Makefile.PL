@@ -9,9 +9,6 @@ WriteMakefile(
 	ABSTRACT_FROM	=> 'lib/Net/Curl/Simple.pm',
 	AUTHOR		=> "Przemys${l_}aw Iskra <sparky at pld-linux.org>",
 	META_MERGE	=> {
-		resources => {
-			repository => 'https://github.com/sparky/perl-Net-Curl-Simple'
-		},
 	},
 	SIGN		=> 1,
 	LICENSE		=> 'perl',
@@ -19,9 +16,23 @@ WriteMakefile(
 		"ExtUtils::MakeMaker" => 0,
 	},
 	PREREQ_PM => {
+		# all tests require those
 		"Net::Curl" => "0.17",
 		"Test::More" => 0,
 		"URI" => 0,
+	},
+	META_MERGE	=> {
+		requires => {
+			# some tests use those, but we don't want overzealous cpan
+			# clients to install them
+			"EV" => "4.00",
+			"AnyEvent" => "5.00",
+			"POE" => 0,
+			"Coro" => 0,
+		},
+		resources => {
+			repository => 'https://github.com/sparky/perl-Net-Curl-Simple'
+		},
 	},
 	DIR			=> [], # no other Makefile.PL
 );
