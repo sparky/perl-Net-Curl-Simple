@@ -8,7 +8,7 @@ use warnings;
 	use Net::Curl::Simple::Async::Select;
 }
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub _perform($)
 {

@@ -6,7 +6,7 @@ use Net::Curl::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
 use Scalar::Util qw(looks_like_number);
 use base qw(Net::Curl::Share);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my %common_options = (
 	useragent => __PACKAGE__ . " v$VERSION",
