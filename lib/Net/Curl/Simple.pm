@@ -452,7 +452,7 @@ object (L<Net::Curl::Simple::Form> is OK as well).
 
  $curl->post( $uri,
      { username => "foo", password => "bar" },
-	 \&finished
+     \&finished
  );
 
 =item put( URI, PUTDATA, [TEMPORARY_OPTIONS], CALLBACK )
@@ -467,11 +467,11 @@ case.
  $curl2->put( $uri, \"some data", \&finished );
  $curl3->put( $uri, sub {
          my ( $curl, $maxsize, $uservar ) = @_;
-		 read STDIN, my ( $r ), $maxsize;
-		 return \$r;
+         read STDIN, my ( $r ), $maxsize;
+         return \$r;
      },
      infilesize => EXPECTED_SIZE,
-	 \&finished
+     \&finished
  );
 
 =item code

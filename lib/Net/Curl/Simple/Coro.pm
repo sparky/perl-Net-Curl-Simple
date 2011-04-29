@@ -34,8 +34,8 @@ Net::Curl::Simple::Coro - Coro integration for blocking Net::Curl requests
 
  my $c = async {
      Net::Curl::Simple->new()->get( $uri, \&finished );
-	 # this will be executed after finishing request
-	 ...
+     # this will be executed after finishing request
+     ...
  };
 
  Net::Curl::Simple->new()->get( $uri2, \&finished );
