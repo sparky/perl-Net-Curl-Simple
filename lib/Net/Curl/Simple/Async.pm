@@ -46,7 +46,7 @@ my @backends = (
 	# forced backends: try to load if nothing better detected
 	EV => undef, # most efficient implementation
 	AnyEvent => undef, # AnyEvent may have some nice alternative
-	Perl => undef, # will work everywhere and much faster than POE
+	Select => undef, # will work everywhere and much faster than POE
 );
 
 
@@ -186,27 +186,28 @@ order):
 
 =item EV
 
-Awesome and very efficient. Use it whernever you can.
+Awesome and very efficient. Use it whenever you can.
 
 =item Irssi
 
-Will be used if Irssi has been loaded. Does not support loop(), the function
+Will be used if L<Irssi> has been loaded. Does not support loop(), the function
 will issue a warning and won't block.
 
 =item AnyEvent
 
-Will be used if AnyEvent has been loaded. In most cases you will already have
+Will be used if L<AnyEvent> has been loaded. In most cases you will already have
 a looping mechanism on your own, but you can call loop() if you don't need
 anything better.
 
 =item POE
 
-Used under POE. Slooow.
+Used under L<POE>, only if no other backend could be detected. Slooow, avoid it.
+If you're using L<POE> try L<POE::Loop::EV>.
 
-=item Perl
+=item Select
 
-Direct loop implementation in perl. Will be used if no other backend has been
-found. You must call loop() to get anything done.
+Direct loop implementation using perl's builtin select. Will be used if no
+other backend has been found. You must call loop() to get anything done.
 
 =back
 

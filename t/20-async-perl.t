@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 18;
 use Net::Curl::Simple;
-use Net::Curl::Simple::Async qw(Perl);
+use Net::Curl::Simple::Async qw(Select);
 
 my $got = 0;
 Net::Curl::Simple->new->get( "http://google.com/", sub {

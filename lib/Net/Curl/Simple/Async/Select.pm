@@ -1,4 +1,4 @@
-package Net::Curl::Simple::Async::Perl;
+package Net::Curl::Simple::Async::Select;
 
 use strict;
 use warnings;

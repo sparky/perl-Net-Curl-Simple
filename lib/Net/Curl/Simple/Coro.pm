@@ -3,9 +3,9 @@ package Net::Curl::Simple::Coro;
 use strict;
 use warnings;
 {
-	package Net::Curl::Simple::Async::Perl;
+	package Net::Curl::Simple::Async::Select;
 	use Coro::Select qw(select);
-	use Net::Curl::Simple::Async::Perl;
+	use Net::Curl::Simple::Async::Select;
 }
 
 our $VERSION = '0.04';
@@ -14,7 +14,7 @@ sub _perform($)
 {
 	my $easy = shift;
 	my $multi = $easy->{multi}
-		||= Net::Curl::Simple::Async::Perl->new();
+		||= Net::Curl::Simple::Async::Select->new();
 
 	$multi->add_handle( $easy );
 	$multi->loop();

@@ -7,7 +7,7 @@ lib/Net/Curl/Simple/Async/AnyEvent.pm
 lib/Net/Curl/Simple/Async/EV.pm
 lib/Net/Curl/Simple/Async/Irssi.pm
 lib/Net/Curl/Simple/Async/POE.pm
-lib/Net/Curl/Simple/Async/Perl.pm
+lib/Net/Curl/Simple/Async/Select.pm
 lib/Net/Curl/Simple/Coro.pm
 lib/Net/Curl/Simple/Form.pm
 lib/Net/Curl/Simple/UserAgent.pm
