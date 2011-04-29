@@ -180,9 +180,10 @@ sub _finish
 	my ( $easy, $result ) = @_;
 	$easy->{referer} = $easy->getinfo( 'effective_url' );
 	$easy->{in_use} = 0;
+	$easy->{code} = $result;
 
 	my $cb = $easy->{cb};
-	$cb->( $easy, $result );
+	$cb->( $easy );
 
 	my $perm = $easy->{options};
 	foreach my $opt ( keys %{ $easy->{options_temp} } ) {
@@ -232,10 +233,10 @@ sub _perform
 }
 
 # results
-#sub code
-#{
-#	return (shift)->{code};
-#}
+sub code
+{
+	return (shift)->{code};
+}
 
 sub headers
 {
@@ -357,7 +358,7 @@ Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
  sub finished
  {
-     my ( $curl, $result ) = @_;
+     my $curl = shift;
      print "document body: $curl->{body}\n";
 
      # reuse connection to get another file
@@ -433,7 +434,7 @@ request only.
 
  $curl->get( "http://full.uri/", sub {
      my $curl = shift;
-     my $result = shift;
+     my $result = $curl->code;
      die "get() failed: $result\n" unless $result == 0;
 
      $curl->get( "/partial/uri", sub {} );
@@ -472,6 +473,10 @@ case.
      infilesize => EXPECTED_SIZE,
 	 \&finished
  );
+
+=item code
+
+Return result code. Zero means we're ok.
 
 =item headers
 
