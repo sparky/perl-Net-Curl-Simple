@@ -19,7 +19,6 @@ my @backends = (
 	# backends we support directly
 	EV => 'EV',
 	Irssi => 'Irssi',
-	POE => 'POE::Kernel',
 	AnyEvent => 'AnyEvent',
 
 	# AnyEvent supports some implementations we don't
@@ -34,7 +33,8 @@ my @backends = (
 
 	# some POE::Loop::* implementations,
 	# AnyEvent is preffered as it gives us a more
-	# direct access to those backends
+	# direct access to most backends
+	POE => 'POE::Kernel',
 	POE => 'Event',
 	POE => 'Event::Lib',
 	POE => 'Glib',
@@ -184,6 +184,10 @@ order):
 
 =over
 
+=item EV
+
+Awesome and very efficient. Use it whernever you can.
+
 =item Irssi
 
 Will be used if Irssi has been loaded. Does not support loop(), the function
@@ -194,6 +198,10 @@ will issue a warning and won't block.
 Will be used if AnyEvent has been loaded. In most cases you will already have
 a looping mechanism on your own, but you can call loop() if you don't need
 anything better.
+
+=item POE
+
+Used under POE. Slooow.
 
 =item Perl
 
