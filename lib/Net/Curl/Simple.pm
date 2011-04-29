@@ -367,6 +367,10 @@ Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
  sub finished2 { }
 
+=head1 WARNING
+
+B<This module is under heavy development.> Its interface may change yet.
+
 =head1 DESCRIPTION
 
 C<Net::Curl::Simple> is a thin layer over L<Net::Curl::Easy>. It simplifies
