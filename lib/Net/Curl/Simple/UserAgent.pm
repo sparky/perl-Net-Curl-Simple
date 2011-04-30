@@ -46,6 +46,8 @@ sub curl
 
 1;
 
+__END__
+
 =head1 NAME
 
 Net::Curl::Simple::UserAgent - share some data between multiple Net::Curl::Simple objects

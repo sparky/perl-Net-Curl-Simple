@@ -104,6 +104,8 @@ sub loop
 
 1;
 
+__END__
+
 =head1 NAME
 
 Net::Curl::Simple::Async - perform Net::Curl requests asynchronously

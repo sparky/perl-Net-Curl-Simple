@@ -370,6 +370,8 @@ sub put
 
 1;
 
+__END__
+
 =head1 NAME
 
 Net::Curl::Simple - simplifies Net::Curl::Easy interface

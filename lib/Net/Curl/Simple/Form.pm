@@ -55,6 +55,8 @@ sub file
 
 1;
 
+__END__
+
 =head1 NAME
 
 Net::Curl::Simple::Form - simplify Net::Curl::Form a little

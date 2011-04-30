@@ -23,6 +23,8 @@ sub _perform($)
 
 1;
 
+__END__
+
 =head1 NAME
 
 Net::Curl::Simple::Coro - Coro integration for blocking Net::Curl requests
