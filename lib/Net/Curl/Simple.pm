@@ -1,7 +1,7 @@
 package Net::Curl::Simple;
 
 use strict;
-use warnings;
+use warnings; no warnings 'redefine';
 use Net::Curl 0.17;
 use Net::Curl::Easy qw(/^CURLOPT_(PROXY|POSTFIELDS)/ /^CURLPROXY_/);
 use Scalar::Util qw(looks_like_number);
@@ -198,6 +198,7 @@ sub ua
 	return (shift)->share();
 }
 
+sub _start_perform($);
 sub _perform
 {
 	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
@@ -218,18 +219,28 @@ sub _perform
 	$easy->{headers} = [];
 	$easy->{in_use} = 1;
 
+	_start_perform( $easy );
+	return $easy;
+}
+
+# hopefully will be called only once
+sub _start_perform($)
+{
+	my $easy = shift;
+
 	if ( my $add = UNIVERSAL::can( 'Net::Curl::Simple::Async', '_add' ) ) {
-		$add->( $easy );
+		*_start_perform = $add;
 	} elsif ( UNIVERSAL::can( 'Coro', 'cede' ) ) {
 		require Net::Curl::Simple::Coro;
-		Net::Curl::Simple::Coro::_perform( $easy );
+		*_start_perform = \&Net::Curl::Simple::Coro::_perform;
 	} else {
 		eval {
 			$easy->perform();
 		};
 		$easy->_finish( $@ || Net::Curl::Easy::CURLE_OK );
+		return;
 	}
-	return $easy;
+	return _start_perform( $easy );
 }
 
 # results
@@ -484,11 +495,11 @@ Return result code. Zero means we're ok.
 
 =item headers
 
-Return a list of all headers. Equivalent to C<@{ $curl->{headers} }>.
+Return a list of all headers. Equivalent to C<< @{ $curl->{headers} } >>.
 
 =item content
 
-Return transfer content. Equivalent to C<$curl->{body}>.
+Return transfer content. Equivalent to C<< $curl->{body} >>.
 
 =back
 
