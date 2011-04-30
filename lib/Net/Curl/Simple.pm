@@ -243,6 +243,19 @@ sub _start_perform($)
 	return _start_perform( $easy );
 }
 
+
+*join = sub ($)
+{
+	my $easy = shift;
+	if ( not ref $easy ) {
+		# no object, wait for first easy that finishes
+		...
+	} else {
+		return $easy unless $easy->{in_use};
+		...
+	}
+};
+
 # results
 sub code
 {
