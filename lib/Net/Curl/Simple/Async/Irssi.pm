@@ -122,11 +122,6 @@ sub add_handle($$)
 	my $multi = shift;
 	my $easy = shift;
 
-	# Irssi won't allow timeout smaller than 10ms
-	Irssi::timeout_add_once( 10, sub {
-		$multi->socket_action();
-	}, '' );
-
 	$multi->{active} = -1;
 	$multi->SUPER::add_handle( $easy );
 }

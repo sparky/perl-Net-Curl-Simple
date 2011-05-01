@@ -121,9 +121,6 @@ sub add_handle($$)
 	my $multi = shift;
 	my $easy = shift;
 
-	# kickstart
-	POE::Kernel->post( $multi->{session}, "timeout" );
-
 	$multi->{active} = -1;
 	$multi->SUPER::add_handle( $easy );
 }

@@ -86,11 +86,6 @@ sub add_handle($$)
 	my $multi = shift;
 	my $easy = shift;
 
-	# kickstart
-	AE::timer 0, 0, sub {
-		$multi->socket_action();
-	};
-
 	$multi->{active} = -1;
 	$multi->SUPER::add_handle( $easy );
 }

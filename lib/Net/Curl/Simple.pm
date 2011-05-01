@@ -516,6 +516,12 @@ Return a list of all headers. Equivalent to C<< @{ $curl->{headers} } >>.
 
 Return transfer content. Equivalent to C<< $curl->{body} >>.
 
+=item join
+
+B<NOT IMPLEMENTED YET>
+
+Wait for this download "thread" to finish.
+
 =back
 
 =head1 OPTIONS

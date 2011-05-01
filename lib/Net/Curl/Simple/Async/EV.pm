@@ -93,11 +93,6 @@ sub add_handle($$)
 	my $multi = shift;
 	my $easy = shift;
 
-	# kickstart
-	EV::timer 0, 0, sub {
-		$multi->socket_action();
-	};
-
 	$multi->[ ACTIVE ] = -1;
 	$multi->SUPER::add_handle( $easy );
 }
@@ -129,7 +124,7 @@ sub loop
 {
 	my $multi = shift;
 
-	EV::loop;
+	EV::run;
 }
 
 1;
