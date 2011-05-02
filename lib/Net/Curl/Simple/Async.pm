@@ -12,9 +12,13 @@ sub warn_noasynchdns($) { warn @_ }
 # load specified backend (left) if appropriate module (right)
 # is loaded already
 my @backends = (
-	# backends we support directly
+	# Coro backends, CoroEV is preffered, but let's play it safe
 	CoroEV => 'Coro::EV',
-	AnyEvent => 'Coro',
+	AnyEvent => 'Coro::AnyEvent',
+	AnyEvent => 'Coro::Event',
+	CoroEV => 'Coro',
+
+	# backends we support directly
 	EV => 'EV',
 	Irssi => 'Irssi',
 	AnyEvent => 'AnyEvent',
