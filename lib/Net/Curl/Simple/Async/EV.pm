@@ -24,15 +24,16 @@ BEGIN {
 }
 
 use constant {
-	ACTIVE => 0,
-	TIMER => 1,
+	CONDVAR => 0,
+	ACTIVE => 1,
+	TIMER => 2,
 };
 
 sub new
 {
 	my $class = shift;
 
-	my $multi = $class->SUPER::new( [ -1, undef ] );
+	my $multi = $class->SUPER::new( [ undef, -1, undef ] );
 
 	$multi->setopt( Net::Curl::Multi::CURLMOPT_SOCKETFUNCTION,
 		\&_cb_socket );
@@ -56,7 +57,7 @@ sub _cb_socket
 			$watcher->events( $poll );
 		} else {
 			$watcher = EV::io $socket, $poll, sub {
-				$multi->socket_action( $socket, $_[1] );
+				socket_action( $multi, $socket, $_[1] );
 			};
 			$multi->assign( $socket, $watcher );
 		}
@@ -71,7 +72,7 @@ sub _cb_timer
 	my ( $multi, $timeout_ms ) = @_;
 
 	my $t = $multi->[ TIMER ] ||= EV::timer 10, 10, sub {
-		$multi->socket_action();
+		socket_action( $multi );
 	};
 
 	if ( $timeout_ms < 0 ) {
@@ -97,6 +98,27 @@ sub add_handle($$)
 	$multi->SUPER::add_handle( $easy );
 }
 
+sub _rip_child
+{
+	my $multi = shift;
+
+	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
+		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
+			my $ecv = delete $easy->{cv};
+			my $mcv = $multi->[ CONDVAR ];
+			$multi->[ CONDVAR ] = undef;
+
+			$multi->remove_handle( $easy );
+			$easy->_finish( $result );
+
+			$ecv->send( $easy ) if $ecv;
+			$mcv->send( $easy ) if $mcv;
+		} else {
+			die "I don't know what to do with message $msg.\n";
+		}
+	}
+}
+
 # perform and call any callbacks that have finished
 sub socket_action
 {
@@ -107,24 +129,43 @@ sub socket_action
 
 	$multi->[ ACTIVE ] = $active;
 
-	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
-		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
-			$multi->remove_handle( $easy );
-			$easy->_finish( $result );
-		} else {
-			die "I don't know what to do with message $msg.\n";
-		}
-	}
-	
+	_rip_child( $multi );
+
 	$multi->[ TIMER ] = undef
 		unless $multi->[ ACTIVE ];
 }
 
-sub loop
+sub get_one
 {
-	my $multi = shift;
+	my ( $multi, $easy ) = shift;
 
-	EV::run;
+	my $a = undef;
+	my $cv = bless \$a, 'Net::Curl::Simple::Async::EV::CondVar';
+	if ( $easy ) {
+		$easy->{cv} = $cv;
+	} else {
+		$multi->[ CONDVAR ] = $cv;
+	}
+
+	_rip_child( $multi );
+	return $cv->recv;
+}
+
+package Net::Curl::Simple::Async::EV::CondVar;
+
+sub send
+{
+	my $self = shift;
+	$$self = shift;
+	EV::break;
+}
+
+sub recv
+{
+	my $self = shift;
+
+	EV::run until $$self;
+	return $$self;
 }
 
 1;
