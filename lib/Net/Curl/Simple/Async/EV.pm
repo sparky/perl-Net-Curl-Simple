@@ -137,7 +137,7 @@ sub socket_action
 
 sub get_one
 {
-	my ( $multi, $easy ) = shift;
+	my ( $multi, $easy ) = @_;
 
 	my $a = undef;
 	my $cv = bless \$a, 'Net::Curl::Simple::Async::EV::CondVar';

@@ -125,7 +125,7 @@ sub socket_action
 
 sub get_one
 {
-	my ( $multi, $easy ) = shift;
+	my ( $multi, $easy ) = @_;
 
 	my $cv = AE::cv;
 	if ( $easy ) {
