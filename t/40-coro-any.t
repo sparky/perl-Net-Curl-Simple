@@ -7,10 +7,8 @@ BEGIN {
 	eval 'use Coro';
 	plan skip_all => "Coro is required for this test" if $@;
 }
-plan skip_all => 'Coro support not working';
 plan tests => 20;
 use Net::Curl::Simple;
-use Net::Curl::Simple::Async qw(AnyEvent);
 
 my $pos = 1;
 
@@ -53,3 +51,5 @@ my $cb = async {
 cede;
 $ca->join;
 $cb->join;
+
+diag( 'loaded implementation: ' . (join ", ", grep m#/Async/#, keys %INC ) );
