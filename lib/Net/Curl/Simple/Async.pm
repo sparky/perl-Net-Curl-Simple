@@ -1,14 +1,10 @@
 package Net::Curl::Simple::Async;
 
-use strict;
-use warnings;
+use strict; no strict 'refs';
+use warnings; no warnings 'redefine';
 use Net::Curl;
 
 our $VERSION = '0.05';
-
-use constant
-	can_asynchdns => ( ( Net::Curl::version_info()->{features}
-		& Net::Curl::CURL_VERSION_ASYNCHDNS ) != 0 );
 
 sub warn_noasynchdns($) { warn @_ }
 
@@ -49,15 +45,20 @@ my @backends = (
 	Select => undef, # will work everywhere and much faster than POE
 );
 
-
-sub _get_multi()
+sub import
 {
-	my $multi;
+	my $class = shift;
+	return if not @_;
+	# force some implementation
+	@backends = map +($_, undef), @_;
+}
 
-	no strict 'refs';
+my $multi;
+sub multi()
+{
 	while ( my ( $impl, $pkg ) = splice @backends, 0, 2 ) {
 		if ( not defined $pkg or defined ${ $pkg . '::VERSION' } ) {
-			my $implpkg = join '::', __PACKAGE__, $impl;
+			my $implpkg = __PACKAGE__ . '::' . $impl;
 			eval "require $implpkg";
 			next if $@;
 			eval {
@@ -70,36 +71,20 @@ sub _get_multi()
 	die "Could not load " . __PACKAGE__ . " implementation\n"
 		unless $multi;
 
-	warn_noasynchdns "Please rebuild libcurl with AsynchDNS to avoid"
-		. " blocking DNS requests\n" unless can_asynchdns;
+	warn_noasynchdns "Please rebuild libcurl with AsynchDNS to avoid blocking"
+		. " DNS requests\n" unless Net::Curl::Simple::can_asynchdns;
 
-	no warnings 'redefine';
-	*_get_multi = sub () { $multi };
+	*multi = sub () { $multi };
 
 	return $multi;
 };
 
-sub import
-{
-	my $class = shift;
-	return if not @_;
-	# force some implementation
-	@backends = map +($_, undef), @_;
-}
-
-sub _add($)
-{
-	my $easy = shift;
-
-	die "easy cannot _finish()\n"
-		unless $easy->can( '_finish' );
-
-	_get_multi->add_handle( $easy );
-}
-
-sub loop
-{
-	_get_multi->loop();
+END {
+	# destroy multi object before global destruction
+	foreach my $easy ( $multi->handles ) {
+		$multi->remove_handle( $easy );
+	}
+	$multi = undef;
 }
 
 1;
@@ -109,6 +94,10 @@ __END__
 =head1 NAME
 
 Net::Curl::Simple::Async - perform Net::Curl requests asynchronously
+
+=head1 WARNING
+
+B<this description is outdated>
 
 =head1 SYNOPSIS
 

@@ -41,14 +41,14 @@ sub _cb_socket
 	# register read event
 	if ( $poll == CURL_POLL_IN or $poll == CURL_POLL_INOUT ) {
 		$multi->{ "r$socket" } = AE::io $socket, 0, sub {
-			$multi->socket_action( $socket, CURL_CSELECT_IN );
+			socket_action( $multi, $socket, CURL_CSELECT_IN );
 		};
 	}
 
 	# register write event
 	if ( $poll == CURL_POLL_OUT or $poll == CURL_POLL_INOUT ) {
 		$multi->{ "w$socket" } = AE::io $socket, 1, sub {
-			$multi->socket_action( $socket, CURL_CSELECT_OUT );
+			socket_action( $multi, $socket, CURL_CSELECT_OUT );
 		};
 	}
 
@@ -71,7 +71,7 @@ sub _cb_timer
 
 	if ( $timeout_ms < 0 ) {
 		if ( $multi->handles ) {
-			$multi->{timer} = AE::timer 10, 10, $cb;
+			$multi->{timer} = AE::timer 1, 1, $cb;
 		}
 	} else {
 		# This will trigger timeouts if there are any.
@@ -90,6 +90,26 @@ sub add_handle($$)
 	$multi->SUPER::add_handle( $easy );
 }
 
+sub _rip_child
+{
+	my $multi = shift;
+
+	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
+		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
+			my $ecv = delete $easy->{cv};
+			my $mcv = delete $multi->{cv};
+
+			$multi->remove_handle( $easy );
+			$easy->_finish( $result );
+
+			$ecv->send( $easy ) if $ecv;
+			$mcv->send( $easy ) if $mcv;
+		} else {
+			die "I don't know what to do with message $msg.\n";
+		}
+	}
+}
+
 # perform and call any callbacks that have finished
 sub socket_action
 {
@@ -100,34 +120,18 @@ sub socket_action
 
 	$multi->{active} = $active;
 
-	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
-		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
-			$multi->remove_handle( $easy );
-			$easy->_finish( $result );
-		} else {
-			die "I don't know what to do with message $msg.\n";
-		}
-	}
-
-	# check $multi->{active} and not something else because some finish()
-	# callback could have just added a new handle
-	if ( $multi->{active} == 0 and $multi->{cv} ) {
-		$multi->{cv}->send();
-	}
+	_rip_child( $multi );
 }
 
-sub loop
+sub get_one
 {
-	my $multi = shift;
+	my ( $multi, $easy ) = shift;
 
-	# recursive loop calling is not allowed
-	return if $multi->{cv};
+	my $cv = AE::cv;
+	( $easy || $multi )->{cv} = $cv;
 
-	$multi->{cv} = AE::cv;
-	while ( $multi->handles ) {
-		$multi->{cv}->recv;
-	}
-	delete $multi->{cv};
+	# _rip_child( $multi );
+	return $cv->recv;
 }
 
 1;

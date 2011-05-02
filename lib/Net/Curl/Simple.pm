@@ -11,6 +11,20 @@ use base qw(Net::Curl::Easy);
 
 our $VERSION = '0.05';
 
+use constant
+	curl_features => Net::Curl::version_info()->{features};
+
+use constant {
+	can_ipv6 => ( curl_features & Net::Curl::CURL_VERSION_IPV6 ) != 0,
+	can_ssl => ( curl_features & Net::Curl::CURL_VERSION_SSL ) != 0,
+	can_libz => ( curl_features & Net::Curl::CURL_VERSION_LIBZ ) != 0,
+	can_asynchdns => ( curl_features & Net::Curl::CURL_VERSION_ASYNCHDNS ) != 0,
+	TRUE => !0,
+	FALSE => !1,
+};
+
+use Net::Curl::Simple::Async;
+
 my @common_options = (
 	timeout => 300,
 	connecttimeout => 60,
@@ -19,16 +33,13 @@ my @common_options = (
 	ssl_verifypeer => 0,
 	noprogress => 1,
 	cookiefile => '',
-	useragent => __PACKAGE__ . " v$VERSION",
+	useragent => __PACKAGE__ . ' v' . $VERSION,
 	headerfunction => \&_cb_header,
 	httpheader => [
 		'Accept: */*',
 	],
+	( can_libz ? ( encoding => 'gzip,deflate' ) : () ),
 );
-
-if ( Net::Curl::version_info()->{features} & Net::Curl::CURL_VERSION_LIBZ ) {
-	push @common_options, encoding => 'gzip,deflate';
-}
 
 my %proxytype = (
 	http    => CURLPROXY_HTTP,
@@ -182,15 +193,14 @@ sub _finish
 	$easy->{in_use} = 0;
 	$easy->{code} = $result;
 
-	my $cb = $easy->{cb};
-	$cb->( $easy );
-
 	my $perm = $easy->{options};
 	foreach my $opt ( keys %{ $easy->{options_temp} } ) {
 		my $val = $perm->{$opt};
 		$easy->setopt( $opt => $val, 0 );
-
 	}
+
+	my $cb = $easy->{cb};
+	eval { $cb->( $easy ) } if $cb;
 }
 
 sub ua
@@ -219,40 +229,25 @@ sub _perform
 	$easy->{headers} = [];
 	$easy->{in_use} = 1;
 
-	_start_perform( $easy );
+	Net::Curl::Simple::Async::multi->add_handle( $easy );
+
+	# block unless we've got a callback
+	$easy->join unless $cb;
+
 	return $easy;
 }
-
-# hopefully will be called only once
-sub _start_perform($)
-{
-	my $easy = shift;
-
-	if ( my $add = UNIVERSAL::can( 'Net::Curl::Simple::Async', '_add' ) ) {
-		*_start_perform = $add;
-	} elsif ( UNIVERSAL::can( 'Coro', 'cede' ) ) {
-		require Net::Curl::Simple::Coro;
-		*_start_perform = \&Net::Curl::Simple::Coro::_perform;
-	} else {
-		eval {
-			$easy->perform();
-		};
-		$easy->_finish( $@ || Net::Curl::Easy::CURLE_OK );
-		return;
-	}
-	return _start_perform( $easy );
-}
-
 
 *join = sub ($)
 {
 	my $easy = shift;
 	if ( not ref $easy ) {
 		# no object, wait for first easy that finishes
-		...
+		$easy = Net::Curl::Simple::Async::multi->get_one();
+		return $easy;
 	} else {
 		return $easy unless $easy->{in_use};
-		...
+		Net::Curl::Simple::Async::multi->get_one( $easy );
+		return $easy;
 	}
 };
 
