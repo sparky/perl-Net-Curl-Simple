@@ -144,6 +144,7 @@ sub get_one
 	if ( $easy ) {
 		$easy->{cv} = $cv;
 	} else {
+		return undef unless $multi->handles;
 		$multi->[ CONDVAR ] = $cv;
 	}
 

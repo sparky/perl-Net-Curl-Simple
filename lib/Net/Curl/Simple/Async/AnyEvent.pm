@@ -128,7 +128,12 @@ sub get_one
 	my ( $multi, $easy ) = shift;
 
 	my $cv = AE::cv;
-	( $easy || $multi )->{cv} = $cv;
+	if ( $easy ) {
+		$easy->{cv} = $cv;
+	} else {
+		return undef unless $multi->handles;
+		$multi->{cv} = $cv;
+	}
 
 	# _rip_child( $multi );
 	return $cv->recv;
