@@ -1,5 +1,7 @@
 package Net::Curl::Simple::Async::Select;
 
+die 'unfinished';
+
 use strict;
 use warnings;
 use Net::Curl::Multi;

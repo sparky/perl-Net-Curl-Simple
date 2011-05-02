@@ -1,5 +1,7 @@
 package Net::Curl::Simple::Async::POE;
 
+die 'unfinished';
+
 use strict;
 use warnings;
 use POE;

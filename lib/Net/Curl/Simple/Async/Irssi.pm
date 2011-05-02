@@ -146,9 +146,9 @@ sub socket_action
 	}
 }
 
-sub loop
+sub get_one
 {
-	warn __PACKAGE__ . " does not support blocking loop()\n";
+	warn __PACKAGE__ . " does not support blocking\n";
 	return;
 }
 
