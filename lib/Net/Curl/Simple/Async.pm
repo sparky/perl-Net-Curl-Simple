@@ -81,10 +81,12 @@ sub multi()
 
 END {
 	# destroy multi object before global destruction
-	foreach my $easy ( $multi->handles ) {
-		$multi->remove_handle( $easy );
+	if ( $multi ) {
+		foreach my $easy ( $multi->handles ) {
+			$multi->remove_handle( $easy );
+		}
+		$multi = undef;
 	}
-	$multi = undef;
 }
 
 1;
