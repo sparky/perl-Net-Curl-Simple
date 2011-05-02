@@ -13,6 +13,8 @@ sub warn_noasynchdns($) { warn @_ }
 # is loaded already
 my @backends = (
 	# backends we support directly
+	CoroEV => 'Coro::EV',
+	AnyEvent => 'Coro',
 	EV => 'EV',
 	Irssi => 'Irssi',
 	AnyEvent => 'AnyEvent',
