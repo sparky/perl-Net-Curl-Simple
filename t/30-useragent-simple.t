@@ -7,7 +7,8 @@ use Net::Curl::Simple::UserAgent;
 
 my $ua = Net::Curl::Simple::UserAgent->new();
 my $got = 0;
-$ua->curl->get( "http://google.com/", sub {
+my $curl = $ua->curl;
+$curl->get( "http://google.com/", sub {
 	my $curl = shift;
 	$got = 1;
 
@@ -20,6 +21,8 @@ $ua->curl->get( "http://google.com/", sub {
 	cmp_ok( length $curl->content, '>', 1000, 'got some body' );
 	isnt( $curl->{referer}, '', 'referer updarted' );
 } );
+
+$curl->join;
 
 is( $got, 1, 'request did block' );
 
@@ -38,5 +41,7 @@ sub finish2
 	cmp_ok( length $curl->content, '>', 1000, 'got some body' );
 	isnt( $curl->{referer}, '', 'referer updarted' );
 }
+
+Net::Curl::Simple->join;
 
 is( $got, 2, 'performed both requests' );

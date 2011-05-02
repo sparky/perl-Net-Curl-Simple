@@ -40,6 +40,6 @@ sub finish2
 
 is( $got, 0, 'request did not block' );
 
-Net::Curl::Simple::Async::loop();
+1 while Net::Curl::Simple->join;
 
 is( $got, 2, 'performed both requests' );

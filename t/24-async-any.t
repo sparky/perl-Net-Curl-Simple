@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Test::More tests => 18;
 use Net::Curl::Simple;
-use Net::Curl::Simple::Async;
 
 my $got = 0;
 Net::Curl::Simple->new->get( "http://google.com/", sub {
@@ -40,7 +39,7 @@ sub finish2
 
 is( $got, 0, 'request did not block' );
 
-Net::Curl::Simple::Async::loop();
+1 while Net::Curl::Simple->join;
 
 is( $got, 2, 'performed both requests' );
 
