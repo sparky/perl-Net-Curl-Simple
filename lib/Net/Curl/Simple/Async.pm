@@ -111,61 +111,29 @@ __END__
 
 Net::Curl::Simple::Async - perform Net::Curl requests asynchronously
 
-=head1 WARNING
-
-B<this description is outdated>
-
 =head1 SYNOPSIS
 
  use Net::Curl::Simple;
- use Net::Curl::Simple::Async;
-
- # this does not block now
- Net::Curl::Simple->new()->get( $uri, \&finished );
- Net::Curl::Simple->new()->get( $uri2, \&finished );
-
- # block until all requests are finished, may not be needed
- Net::Curl::Simple::Async::loop();
-
- sub finished
- {
-     my ( $curl, $result ) = @_;
-     print "document body: $curl->{body}\n";
- }
+ use Net::Curl::Simple::Async qw(AnyEvent Select);
 
 =head1 DESCRIPTION
 
-If you use C<Net::Curl::Simple::Async> your L<Net::Curl::Simple> objects
-will no longer block.
-
-If your code is using L<Net::Curl::Simple> correctly (that is - processing
-any finished requests in callbacks), the only change needed to add
-asynchronous support is adding:
-
- use Net::Curl::Simple::Async;
-
-It will pick up best Async backend automatically. However, you may force
-some backends if you don't like the one detected:
+This module is loaded by L<Net::Curl::Simple>. The only reason to use it
+directly would be to force some event implementation.
 
  use Irssi;
  # Irssi backend would be picked
  use Net::Curl::Simple::Async qw(AnyEvent POE);
 
-You may need to call loop() function if your code does not provide any
-suitable looping mechanism.
-
 =head1 FUNCTIONS
 
 =over
 
-=item loop
+=item multi
 
-Block until all requests are complete. Some backends may not support it.
-Most backends don't need it.
-
-=item can_asynchdns
-
-Will tell you whether libcurl has AsyncDNS capability.
+Returns internal curl multi handle. You can use it to add bare
+L<Net::Curl::Easy> objects. L<Net::Curl::Simple> objects add themselves
+to this handle automatically.
 
 =item warn_noasynchdns
 
@@ -173,7 +141,7 @@ Function used to warn about lack of AsynchDNS. You can overwrite it if you
 hate the warning.
 
  {
-     no warnings;
+     no warnings 'redefine';
      # don't warn at all
      *Net::Curl::Simple::Async::warn_noasynchdns = sub ($) { };
  }
@@ -186,25 +154,29 @@ just replace it with a method more suitable in your application.
 
 =head1 BACKENDS
 
-In order of preference (C<Net::Curl::Simple::Async> will try them it that
-order):
+C<Net::Curl::Simple::Async> will check backends in this order:
 
 =over
 
+=item CoroEV
+
+Used with L<Coro> only.
+
 =item EV
 
-Awesome and very efficient. Use it whenever you can.
+Based on L<EV> - an awesome and very efficient event library.
+Use it whenever you can.
 
 =item Irssi
 
-Will be used if L<Irssi> has been loaded. Does not support loop(), the function
+Will be used if L<Irssi> has been loaded. Does not support join() method - it
 will issue a warning and won't block.
 
 =item AnyEvent
 
 Will be used if L<AnyEvent> has been loaded. In most cases you will already have
-a looping mechanism on your own, but you can call loop() if you don't need
-anything better.
+a looping mechanism on your own, but you can call C<< Net::Curl::Simple->join >>
+if you don't need anything better.
 
 =item POE
 
@@ -214,15 +186,15 @@ If you're using L<POE> try L<POE::Loop::EV>.
 =item Select
 
 Direct loop implementation using perl's builtin select. Will be used if no
-other backend has been found. You must call loop() to get anything done.
+other backend has been found. You must call join() to get anything done.
 
 =back
 
 =head1 SEE ALSO
 
+L<Net::Curl::Simple>
 L<Net::Curl::Simple::UserAgent>
-L<Net::Curl::Simple::Async>
-L<Net::Curl::Easy>
+L<Net::Curl::Multi>
 
 =head1 COPYRIGHT
 
