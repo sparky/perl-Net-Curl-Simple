@@ -4,6 +4,13 @@ use strict;
 use warnings;
 use Net::Curl::Multi;
 use base qw(Net::Curl::Multi);
+BEGIN {
+	no strict 'refs';
+	if ( defined ${ 'Coro::VERSION' } ) {
+		require Coro::Select;
+		Coro::Select->import( 'select' );
+	}
+}
 
 sub _rip_child($$)
 {
