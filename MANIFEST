@@ -1,6 +1,7 @@
 MANIFEST
 Makefile.PL
 README
+examples/irssi-cpan-search.pl
 lib/Net/Curl/Simple.pm
 lib/Net/Curl/Simple/Async.pm
 lib/Net/Curl/Simple/Async/AnyEvent.pm
@@ -11,6 +12,7 @@ lib/Net/Curl/Simple/Async/POE.pm
 lib/Net/Curl/Simple/Async/Select.pm
 lib/Net/Curl/Simple/Form.pm
 lib/Net/Curl/Simple/UserAgent.pm
+lib/Net/Curl/Simple/examples.pod
 t/01-use.t
 t/02-version.t
 t/10-simple.t
