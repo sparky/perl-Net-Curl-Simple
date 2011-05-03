@@ -17,6 +17,8 @@ my @backends = (
 	AnyEvent => 'Coro::AnyEvent',
 	AnyEvent => 'Coro::Event',
 	CoroEV => 'Coro',
+	AnyEvent => 'Coro',
+	Select => 'Coro',
 
 	# backends we support directly
 	EV => 'EV',
@@ -33,7 +35,7 @@ my @backends = (
 	AnyEvent => 'Qt',
 	AnyEvent => 'Tk',
 
-	# POE::Loop::* implementations, out backend stinks a bit
+	# POE::Loop::* implementations, our backend stinks a bit
 	# so try AnyEvent first
 	AnyEvent => 'POE::Kernel',
 	AnyEvent => 'Prima',
