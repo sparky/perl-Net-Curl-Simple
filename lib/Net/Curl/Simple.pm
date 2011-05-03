@@ -377,6 +377,9 @@ Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
  Net::Curl::Simple->new->get( $uri, \&finished );
 
+ # wait until all requests are finished
+ 1 while Net::Curl::Simple->join;
+
  sub finished
  {
      my $curl = shift;
@@ -392,17 +395,18 @@ Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
 B<This module is under heavy development.> Its interface may change yet.
 
+B<Documentation may not be up to date with latest interface changes.>
+
 =head1 DESCRIPTION
 
-C<Net::Curl::Simple> is a thin layer over L<Net::Curl::Easy>. It simplifies
-many common tasks, while providing access to full power of L<Net::Curl::Easy>
+C<Net::Curl::Simple> is a thin layer over L<Net::Curl>. It simplifies
+many common tasks, while providing access to full power of L<Net::Curl>
 when its needed.
 
 L<Net::Curl> excells in asynchronous operations, thanks to a great design of
 L<libcurl(3)>. To take advantage of that power C<Net::Curl::Simple> interface
 uses callbacks even in synchronous mode, this should allow to quickly switch
-to async when the time comes. Of course there is nothing to stop you to use
-L<Net::Curl::Simple::Async> from the beginning.
+to async when the time comes.
 
 =head1 CONSTRUCTOR
 
