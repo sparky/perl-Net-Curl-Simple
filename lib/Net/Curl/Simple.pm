@@ -19,8 +19,6 @@ use constant {
 	can_ssl => ( curl_features & Net::Curl::CURL_VERSION_SSL ) != 0,
 	can_libz => ( curl_features & Net::Curl::CURL_VERSION_LIBZ ) != 0,
 	can_asynchdns => ( curl_features & Net::Curl::CURL_VERSION_ASYNCHDNS ) != 0,
-	TRUE => !0,
-	FALSE => !1,
 };
 
 use Net::Curl::Simple::Async;
@@ -78,9 +76,9 @@ my %proxytype = (
 		if ( $opt == CURLOPT_PROXY ) {
 			# guess proxy type from proxy string
 			my $type = ( $val =~ m#^([a-z0-9]+)://# );
-			die "unknown proxy type $type\n"
-				unless exists $proxytype{ $type };
-			$easy->setopt( CURLOPT_PROXYTYPE, $proxytype{ $type }, $temp );
+			if ( defined $type and exists $proxytype{ $type } ) {
+				$easy->setopt( CURLOPT_PROXYTYPE, $proxytype{ $type }, $temp );
+			}
 		} elsif ( $opt == CURLOPT_POSTFIELDS ) {
 			# perl knows the size, but libcurl may be wrong
 			$easy->setopt( CURLOPT_POSTFIELDSIZE, length $val, $temp );
@@ -154,12 +152,7 @@ sub getinfos
 sub _cb_header
 {
 	my ( $easy, $data, $uservar ) = @_;
-	{
-		local $_ = $data;
-		local $/ = "\r\n";
-		chomp;
-		push @{ $easy->{headers} }, $_;
-	}
+	push @{ $easy->{headers} }, $data;
 	return length $data;
 }
 
@@ -369,16 +362,13 @@ __END__
 
 =head1 NAME
 
-Net::Curl::Simple - simplifies Net::Curl::Easy interface
+Net::Curl::Simple - simplified Net::Curl interface
 
 =head1 SYNOPSIS
 
  use Net::Curl::Simple;
 
  Net::Curl::Simple->new->get( $uri, \&finished );
-
- # wait until all requests are finished
- 1 while Net::Curl::Simple->join;
 
  sub finished
  {
@@ -391,11 +381,12 @@ Net::Curl::Simple - simplifies Net::Curl::Easy interface
 
  sub finished2 { }
 
+ # wait until all requests are finished
+ 1 while Net::Curl::Simple->join;
+
 =head1 WARNING
 
-B<This module is under heavy development.> Its interface may change yet.
-
-B<Documentation may not be up to date with latest interface changes.>
+B<This module is under development.> Its interface may change yet.
 
 =head1 DESCRIPTION
 
@@ -405,18 +396,21 @@ when its needed.
 
 L<Net::Curl> excells in asynchronous operations, thanks to a great design of
 L<libcurl(3)>. To take advantage of that power C<Net::Curl::Simple> interface
-uses callbacks even in synchronous mode, this should allow to quickly switch
-to async when the time comes.
+allways uses asynchronous mode. If you want a blocking request, you must either
+set callback to C<undef> or call join() method right away.
 
 =head1 CONSTRUCTOR
 
 =over
 
-=item new( [PERMANENT_OPTIONS] )
+=item new( [%PERMANENT_OPTIONS] )
 
 Creates new Net::Curl::Simple object.
 
  my $curl = Net::Curl::Simple->new( timeout => 60 );
+
+See also L<Net::Curl::Simple::UserAgent> which will allow you to create
+connected C<Net::Curl::Simple> objects.
 
 =back
 
@@ -429,11 +423,11 @@ Creates new Net::Curl::Simple object.
 Set some option. Either permanently or only for next request if TEMPORARY is
 true.
 
-=item setopts( PERMANENT_OPTIONS )
+=item setopts( %PERMANENT_OPTIONS )
 
 Set multiple options, permanently.
 
-=item setopts_temp( TEMPORARY_OPTIONS )
+=item setopts_temp( %TEMPORARY_OPTIONS )
 
 Set multiple options, only for next request.
 
@@ -443,23 +437,27 @@ Get connection information.
 
  my $value = $curl->getinfo( 'effective_url' );
 
-=item getinfos( INFO_NAMES )
+=item getinfos( @INFO_NAMES )
 
-Get multiple getinfo values.
+Returns multiple getinfo values.
 
- my ( $v1, $v2 ) ) $curl->getinfos( 'name1', 'name2' );
+ my ( $v1, $v2 ) = $curl->getinfos( 'name1', 'name2' );
 
 =item ua
 
-Get parent L<Net::Curl::Simple::UserAgent> object.
+Returns parent L<Net::Curl::Simple::UserAgent> object.
 
-=item get( URI, [TEMPORARY_OPTIONS], CALLBACK )
+=item get( URI, [%TEMPORARY_OPTIONS], &CALLBACK )
 
-Issue a GET request. CALLBACK will be called upon finishing with two arguments:
-Net::Curl::Simple object and the result value. If URI is incomplete, full uri
-will be constructed using $curl->{referer} as base. Net::Curl::Simple updates
-$curl->{referer} after every request. TEMPORARY_OPTIONS will be set for this
-request only.
+Issue a GET request.
+
+CALLBACK will be called upon finishing with one argument:
+the C<Net::Curl::Simple> object. CALLBACK can be set to C<undef>, in which case
+the request will block and wait until it finishes.
+
+If URI is incomplete, full uri will be constructed using $curl->{referer}
+as base. Net::Curl::Simple updates $curl->{referer} after every request.
+TEMPORARY_OPTIONS will be set for this request only.
 
  $curl->get( "http://full.uri/", sub {
      my $curl = shift;
@@ -469,11 +467,15 @@ request only.
      $curl->get( "/partial/uri", sub {} );
  } );
 
-=item head( URI, [TEMPORARY_OPTIONS], CALLBACK )
+Returns the object itself to allow chaining.
+
+ $curl->get( $uri, \&finished )->join();
+
+=item head( URI, [%TEMPORARY_OPTIONS], &CALLBACK )
 
 Issue a HEAD request. Otherwise it is exactly the same as get().
 
-=item post( URI, POST, [TEMPORARY_OPTIONS], CALLBACK )
+=item post( URI, POST, [%TEMPORARY_OPTIONS], &CALLBACK )
 
 Issue a POST request. POST value can be either a scalar, in which case it will
 be sent literally, a HASHREF - will be uri-encoded, or a L<Net::Curl::Form>
@@ -484,7 +486,7 @@ object (L<Net::Curl::Simple::Form> is OK as well).
      \&finished
  );
 
-=item put( URI, PUTDATA, [TEMPORARY_OPTIONS], CALLBACK )
+=item put( URI, PUTDATA, [%TEMPORARY_OPTIONS], &CALLBACK )
 
 Issue a PUT request. PUTDATA value can be either a file name, in which case the
 file contents will be uploaded, a SCALARREF -- refered data will be uploaded,
@@ -517,9 +519,44 @@ Return transfer content. Equivalent to C<< $curl->{body} >>.
 
 =item join
 
-B<NOT IMPLEMENTED YET>
-
 Wait for this download "thread" to finish.
+
+ $curl->join;
+
+It can be called without an object to wait for any download request. It will
+return the C<Net::Curl::Simple> that just finished. It is not guaranteed to
+return once for each request, if two requests finish at the same time only the
+first one will be notified.
+
+ while ( my $curl = Net::Curl::Simple->join ) {
+     my $result = $curl->code;
+	 warn "curl request finished: $result\n";
+ }
+
+It should not normally be used, only if you don't provide an event loop
+on your own.
+
+=back
+
+=head1 CONSTANTS
+
+=over
+
+=item can_ipv6
+
+Bool, indicates whether libcurl has IPv6 support.
+
+=item can_ssl
+
+Bool, indicates whether libcurl has SSL support.
+
+=item can_libz
+
+Bool, indicates whether libcurl has compression support.
+
+=item can_asynchdns
+
+Bool, indicates whether libcurl can do asynchronous DNS requests.
 
 =back
 
