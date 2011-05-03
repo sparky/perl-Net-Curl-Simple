@@ -4,8 +4,10 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN {
-	eval 'use Coro; use Coro::EV;';
+	eval 'use Coro;';
 	plan skip_all => "Coro is required for this test" if $@;
+	eval 'use Coro::EV;';
+	plan skip_all => "Coro::EV is required for this test" if $@;
 }
 plan tests => 20;
 use Net::Curl::Simple;
