@@ -3,13 +3,12 @@ package Net::Curl::Simple::UserAgent;
 use strict;
 use warnings;
 use Net::Curl::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
-use Scalar::Util qw(looks_like_number);
 use base qw(Net::Curl::Share);
 
 our $VERSION = '0.10';
 
 my %common_options = (
-	useragent => __PACKAGE__ . " v$VERSION",
+	useragent => __PACKAGE__ . ' v' . $VERSION,
 );
 
 sub setopts
@@ -91,7 +90,7 @@ those options.
 
 =over
 
-=item new( [GLOBAL_OPTIONS] )
+=item new( [%GLOBAL_OPTIONS] )
 
 Creates new Net::Curl::Simple::UserAgent object.
 
@@ -108,11 +107,11 @@ Creates new Net::Curl::Simple::UserAgent object.
 Set option for all new curl instances. It will not alter any curl instances
 created already.
 
-=item setopts( GLOBAL_OPTIONS )
+=item setopts( %GLOBAL_OPTIONS )
 
 Set multiple curl options.
 
-=item curl( [PERMANENT_OPTIONS] )
+=item curl( [%PERMANENT_OPTIONS] )
 
 Get new L<Net::Curl::Simple> instance attached to this user agent. Options
 will be passed to new() constructor and will not affect any other instances.
@@ -123,13 +122,13 @@ will be passed to new() constructor and will not affect any other instances.
 
 Options can be either CURLOPT_* values (import them from Net::Curl::Easy),
 or literal names, preferably in lower case, without the CURLOPT_ preffix.
+The second method is preferred.
 For description of available options see L<curl_easy_setopt(3)>.
 
 =head1 SEE ALSO
 
-L<Net::Curl::Simple>
-L<Net::Curl::Simple::Async>
-L<Net::Curl::Easy>
+L<Net::Curl::Simple>,
+L<Net::Curl::Easy>,
 L<Net::Curl::Share>
 
 =head1 COPYRIGHT
