@@ -23,5 +23,6 @@ t/30-useragent-simple.t
 t/40-coro-any.t
 t/41-coro-ev.t
 t/42-coro-anyevent.t
+t/43-coro-select.t
 t/90-pod.t
 t/91-pod-coverage.t
