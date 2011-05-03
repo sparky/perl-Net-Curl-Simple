@@ -48,3 +48,5 @@ is( $got, 0, 'request did not block' );
 1 while Net::Curl::Simple->join;
 
 is( $got, 2, 'performed both requests' );
+
+diag( 'loaded implementation: ' . (join ", ", grep m#/Async/#, keys %INC ) );

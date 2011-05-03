@@ -1,7 +1,5 @@
 package Net::Curl::Simple::Async::POE;
 
-die 'unfinished';
-
 use strict;
 use warnings;
 use POE;
@@ -127,7 +125,24 @@ sub add_handle($$)
 	$multi->SUPER::add_handle( $easy );
 }
 
-# perform and call any callbacks that have finished
+sub _rip_child
+{
+	my $multi = shift;
+
+	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
+		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
+			$multi->remove_handle( $easy );
+			$easy->_finish( $result );
+
+			if ( not $multi->{needle} or $easy == $multi->{needle} ) {
+				$multi->{last_easy} = $easy;
+			}
+		} else {
+			die "I don't know what to do with message $msg.\n";
+		}
+	}
+}
+
 sub socket_action
 {
 	my $multi = shift;
@@ -137,25 +152,34 @@ sub socket_action
 
 	$multi->{active} = $active;
 
-	while ( my ( $msg, $easy, $result ) = $multi->info_read() ) {
-		if ( $msg == Net::Curl::Multi::CURLMSG_DONE ) {
-			$multi->remove_handle( $easy );
-			$easy->_finish( $result );
-		} else {
-			die "I don't know what to do with message $msg.\n";
-		}
-	}
+	_rip_child( $multi );
 
 	if ( $multi->{active} == 0 ) {
 		POE::Kernel->call( $multi->{session}, "stop" );
 	}
 }
 
-sub loop
+sub get_one
 {
-	my $multi = shift;
+	my ( $multi, $easy ) = @_;
 
-	POE::Kernel->run;
+	$multi->{needle} = $easy;
+	delete $multi->{last_easy};
+	_rip_child( $multi );
+
+	if ( my $found = delete $multi->{last_easy} ) {
+		delete $multi->{needle};
+		return $found;
+	}
+
+	return undef unless $multi->handles;
+
+	do {
+		POE::Kernel->loop_do_timeslice;
+	} until ( $multi->{last_easy} );
+
+	delete $multi->{needle};
+	return delete $multi->{last_easy};
 }
 
 1;

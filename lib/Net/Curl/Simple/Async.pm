@@ -33,6 +33,12 @@ my @backends = (
 	AnyEvent => 'Qt',
 	AnyEvent => 'Tk',
 
+	# POE::Loop::* implementations, out backend stinks a bit
+	# so try AnyEvent first
+	AnyEvent => 'POE::Kernel',
+	AnyEvent => 'Prima',
+	AnyEvent => 'Wx',
+
 	# some POE::Loop::* implementations,
 	# AnyEvent is preffered as it gives us a more
 	# direct access to most backends
