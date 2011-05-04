@@ -1,6 +1,7 @@
 MANIFEST
 Makefile.PL
 README
+examples/download-accelerator.pl
 examples/irssi-cpan-search.pl
 lib/Net/Curl/Simple.pm
 lib/Net/Curl/Simple/Async.pm
