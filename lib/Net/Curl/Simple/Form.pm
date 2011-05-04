@@ -6,7 +6,7 @@ use Scalar::Util qw(looks_like_number);
 use Net::Curl::Form;
 use base qw(Net::Curl::Form);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 {
 	my %optcache;

@@ -5,7 +5,7 @@ use warnings;
 use Net::Curl::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
 use base qw(Net::Curl::Share);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 my %common_options = (
 	useragent => __PACKAGE__ . ' v' . $VERSION,
