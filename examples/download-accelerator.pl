@@ -8,8 +8,7 @@ Simple downloader capable to download a file using multiple connections.
 use strict;
 use warnings;
 use Net::Curl::Simple::UserAgent;
-use Net::Curl::Easy qw(/^CURLINFO_/);
-use IO::Handle;
+use IO::Handle; # for STDOUT->flush
 
 my $width = 80;
 my $uri = shift @ARGV or die "Usage: $0 URI [num connections]\n";
@@ -39,10 +38,13 @@ my $filename;
 	my $curl = $chrome->curl->head( $uri,
 		# check whether server supports resume
 		resume_from_large => 1,
+		# no callback here so it will block
 		undef );
 
+	# make sure there were no errors
 	die "HEAD failed: ${ \$curl->code }: ${ \$curl->error }\n"
 		if $curl->code;
+
 	( $size, $fulluri, my $code ) = $curl->getinfos(
 		'content_length_download',
 		'effective_url',
@@ -54,37 +56,43 @@ my $filename;
 	die "Cannot download, code $code\n"
 		unless $code == 206 or $code == 350;
 
+	# we started at 1, so the reported size is wrong
 	$size += 1;
+
+	# extract output file name
+	# decoding Content-Disposition to complicated to bother
 	$fulluri =~ m#.*/(.*)#;
 	$filename = $1;
 }
 
-# align sizes
+# align sizes, optional
 my $alignsize = 1024;
 my $maxthreads = 1 + int ( $size / $alignsize / 4 );
 $threads = $maxthreads if $threads > $maxthreads;
 my $partsize = $alignsize * int ( $size / ( $alignsize * $threads ) );
 
-# progress display
-my $partwidth = int ($width / $threads);
+# progress display information
+my $partwidth = int ( $width / $threads );
 my @display = ( 0 ) x $threads;
 my $lastupdate = 0;
 
 
 print "Downloading $filename ($size bytes, $threads connections):\n";
+die "ERROR: File exists\n" if -f $filename;
 
 foreach my $part ( 0 .. ( $threads - 1 ) ) {
 	my $resume_from = $part * $partsize;
 
-	open my $fout, '+>', $filename;
+	open my $fout, '+>', $filename
+		or die "Cannot save to $filename: $!\n";
 	seek $fout, $resume_from, 0;
 
 	my $easy = $chrome->curl;
 	$easy->{file} = $fout;
 	$easy->{part} = $part;
+	# last part may be larger
 	$easy->{partsize} = $part != $threads - 1 ?
 		$partsize : $size - $resume_from;
-
 
 	$easy->get( $uri,
 		# where we want to resume
@@ -100,10 +108,10 @@ foreach my $part ( 0 .. ( $threads - 1 ) ) {
 	);
 }
 
-# wait for all threads to finish
+# start download and wait for all threads to finish
 1 while Net::Curl::Simple->join;
 
-# update one last time
+# update display one last time
 $lastupdate = 0;
 update_display( 0, 1 );
 print "\nFinished\n";
