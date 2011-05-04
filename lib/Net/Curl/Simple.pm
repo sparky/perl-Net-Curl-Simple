@@ -24,12 +24,10 @@ use constant {
 use Net::Curl::Simple::Async;
 
 my @common_options = (
-	timeout => 300,
 	connecttimeout => 60,
 	followlocation => 1,
 	maxredirs => 50,
 	ssl_verifypeer => 0,
-	noprogress => 1,
 	cookiefile => '',
 	useragent => __PACKAGE__ . ' v' . $VERSION,
 	headerfunction => \&_cb_header,
