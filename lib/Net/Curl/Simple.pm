@@ -26,15 +26,19 @@ use Net::Curl::Simple::Async;
 my @common_options = (
 	connecttimeout => 60,
 	followlocation => 1,
+	# just to avoid loops
 	maxredirs => 50,
+	# there are to many broken servers to care about it by default
 	ssl_verifypeer => 0,
+	# enable cookie session
 	cookiefile => '',
 	useragent => __PACKAGE__ . ' v' . $VERSION,
 	headerfunction => \&_cb_header,
 	httpheader => [
 		'Accept: */*',
 	],
-	( can_libz ? ( encoding => 'gzip,deflate' ) : () ),
+	# sets Accept-Encoding to all values supported by libcurl
+	encoding => '',
 );
 
 my %proxytype = (
@@ -326,7 +330,7 @@ sub put
 				sysread $fin, my ( $r ), $maxlen;
 				return \$r;
 			},
-			infilesize => -s $put
+			infilesize_large => -s $put
 		);
 	} elsif ( ref $put eq 'SCALAR' ) {
 		my $data = $$put;
@@ -337,7 +341,7 @@ sub put
 				my $r = substr $data, 0, $maxlen, '';
 				return \$r;
 			},
-			infilesize => length $data
+			infilesize_large => length $data
 		);
 	} elsif ( ref $put eq 'CODE' ) {
 		@putopts = (
@@ -348,7 +352,7 @@ sub put
 	}
 	$easy->_perform( $uri, $cb,
 		@_,
-		put => 1,
+		upload => 1,
 		@putopts
 	);
 }
