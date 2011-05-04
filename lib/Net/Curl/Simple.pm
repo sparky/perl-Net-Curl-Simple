@@ -38,10 +38,10 @@ my @common_options = (
 );
 
 my %proxytype = (
-	http    => CURLPROXY_HTTP,
-	socks4  => CURLPROXY_SOCKS4,
-	socks5  => CURLPROXY_SOCKS5,
-	socks   => CURLPROXY_SOCKS5,
+	http	=> CURLPROXY_HTTP,
+	socks4	=> CURLPROXY_SOCKS4,
+	socks5	=> CURLPROXY_SOCKS5,
+	socks	=> CURLPROXY_SOCKS5,
 );
 {
 	# introduced later in 7.18.0 and 7.19.4
@@ -528,7 +528,7 @@ first one will be notified.
 
  while ( my $curl = Net::Curl::Simple->join ) {
      my $result = $curl->code;
-	 warn "curl request finished: $result\n";
+     warn "curl request finished: $result\n";
  }
 
 It should not normally be used, only if you don't provide an event loop
