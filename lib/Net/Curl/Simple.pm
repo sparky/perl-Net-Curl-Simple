@@ -569,8 +569,9 @@ without CURLINFO_ preffix.
 
 =head1 SEE ALSO
 
-L<Net::Curl::Simple::UserAgent>
-L<Net::Curl::Simple::Async>
+L<Net::Curl::Simple::examples>,
+L<Net::Curl::Simple::UserAgent>,
+L<Net::Curl::Simple::Async>,
 L<Net::Curl::Easy>
 
 =head1 COPYRIGHT

@@ -128,6 +128,7 @@ For description of available options see L<curl_easy_setopt(3)>.
 =head1 SEE ALSO
 
 L<Net::Curl::Simple>,
+L<Net::Curl::Simple::examples>,
 L<Net::Curl::Easy>,
 L<Net::Curl::Share>
 
