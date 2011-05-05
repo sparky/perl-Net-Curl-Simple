@@ -467,7 +467,25 @@ connected C<Net::Curl::Simple> objects.
 =item setopt( NAME, VALUE, [TEMPORARY] )
 
 Set some option. Either permanently or only for next request if TEMPORARY is
-true.
+true. NAME can be a string: name of the CURLOPT_* constants, without CURLOPT_
+prefix, preferably in lower case. VALUE should be an appropriate value for that
+constant, as described in L<curl_easy_setopt(3)>.
+
+ $curl->setopt( url => $some_uri );
+
+Some options, those that require a constant or a bitmask as their value, can
+have a literal value specified instead of the constant. Bitmask values must
+be separated by commas, spaces, or combination of both; arrayrefs are accepted
+as well. Value names must be written without prefix common for all of values
+of this type.
+
+ # single constant
+ $curl->setopt( http_version => "1_0" );
+ $curl->setopt( ipresolve => "v4" );
+
+ # converted to a bitmask
+ $curl->setopt( protocols => "http, https, ftp, file" );
+ $curl->setopt( httpauth => "digest, gssnegotiate, ntlm" );
 
 =item setopts( %PERMANENT_OPTIONS )
 
