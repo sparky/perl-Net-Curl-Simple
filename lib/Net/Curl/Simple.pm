@@ -51,7 +51,7 @@ my %proxytype = (
 	# introduced later in 7.18.0 and 7.19.4
 	eval {
 		$proxytype{socks4a} = CURLPROXY_SOCKS4A();
-		$proxytype{socks5host} = CURLPROXY_SOCKS5_HOSTNAME();
+		$proxytype{socks5h} = CURLPROXY_SOCKS5_HOSTNAME();
 	};
 	eval {
 		$proxytype{http10} = CURLPROXY_HTTP_1_0();
