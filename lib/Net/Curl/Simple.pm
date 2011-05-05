@@ -58,14 +58,58 @@ my %proxytype = (
 	};
 }
 
+# options that accept either a single constant or a bitmask of constants
+my %optlong2constprefix = (
+	http_version	=> 'CURL_HTTP_VERSION_',
+	ipresolve		=> 'CURL_IPRESOLVE_',
+	netrc			=> 'CURL_NETRC_',
+	postredir		=> 'CURL_REDIR_POST_',
+	rtsp_request	=> 'CURL_RTSPREQ_',
+	sslversion		=> 'CURL_SSLVERSION_',
+	timecondition	=> 'CURL_TIMECOND_',
+	httpauth		=> 'CURLAUTH_',
+	proxyauth		=> 'CURLAUTH_',
+	ftpsslauth		=> 'CURLFTPAUTH_',
+	ftp_filemethod	=> 'CURLFTPMETHOD_',
+	tlsauth_type	=> 'CURLOPT_TLSAUTH_',
+	protocols		=> 'CURLPROTO_',
+	redir_protocols	=> 'CURLPROTO_',
+	ssh_auth_types	=> 'CURLSSH_AUTH_',
+	use_ssl			=> 'CURLUSESSL_',
+);
+
 {
 	my %optcache;
+	my %optlongcache;
 
 	sub setopt
 	{
 		my ( $easy, $opt, $val, $temp ) = @_;
 
 		unless ( looks_like_number( $opt ) ) {
+			if ( exists $optlong2constprefix{ $opt } ) {
+				# convert option value to a number
+				# FROM: protocols => "http, file"
+				# TO: CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_FILE
+				unless ( looks_like_number( $val ) ) {
+					unless ( exists $optlongcache{ $opt }->{ $val } ) {
+						my $value = 0;
+						my $prefix = $optlong2constprefix{ $opt };
+						foreach ( ref $val ? @$val : split /[\|, ]+/, $val ) {
+							my $const = $prefix . uc $_;
+							# only constants with lowercase letters:
+							# CURL_SSLVERSION_TLSv1, CURL_SSLVERSION_SSLv2...
+							$const =~ s/V(\d+)$/v$1/
+								if $prefix eq "CURL_SSLVERSION_";
+							eval "\$value |= Net::Curl::Easy::$const";
+							die "unrecognized literal value: $_ for option $opt\n"
+								if $@;
+						}
+						$optlongcache{ $opt }->{ $val } = $value;
+					}
+					$val = $optlongcache{ $opt }->{ $val };
+				}
+			}
 			# convert option name to option number
 			unless ( exists $optcache{ $opt } ) {
 				eval "\$optcache{ \$opt } = Net::Curl::Easy::CURLOPT_\U$opt";
