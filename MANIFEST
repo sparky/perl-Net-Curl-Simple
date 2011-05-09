@@ -3,6 +3,7 @@ Makefile.PL
 README
 examples/download-accelerator.pl
 examples/irssi-cpan-search.pl
+inc/Test/HTTP/Server.pm
 lib/Net/Curl/Simple.pm
 lib/Net/Curl/Simple/Async.pm
 lib/Net/Curl/Simple/Async/AnyEvent.pm
