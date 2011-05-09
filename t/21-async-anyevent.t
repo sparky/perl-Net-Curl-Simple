@@ -2,17 +2,22 @@
 #
 use strict;
 use warnings;
+use lib 'inc';
 use Test::More;
+use Test::HTTP::Server;
 BEGIN {
 	eval 'use AnyEvent';
 	plan skip_all => "AnyEvent is required for this test" if $@;
 }
-plan tests => 18;
 use Net::Curl::Simple;
 use Net::Curl::Simple::Async qw(AnyEvent);
 
+my $server = Test::HTTP::Server->new;
+plan skip_all => "Could not run http server\n" unless $server;
+plan tests => 18;
+
 my $got = 0;
-Net::Curl::Simple->new->get( "http://google.com/", sub {
+Net::Curl::Simple->new->get( $server->uri, sub {
 	my $curl = shift;
 	$got = 1;
 
@@ -22,10 +27,10 @@ Net::Curl::Simple->new->get( "http://google.com/", sub {
 	is( ref $curl->{headers}, 'ARRAY', 'got array of headers' );
 	is( ref $curl->{body}, '', 'got body scalar' );
 	cmp_ok( scalar $curl->headers, '>', 3, 'got at least 3 headers' );
-	cmp_ok( length $curl->content, '>', 1000, 'got some body' );
+	cmp_ok( length $curl->content, '==', 26, 'got some body' );
 	isnt( $curl->{referer}, '', 'referer updarted' );
 
-	$curl->get( '/search?q=perl', \&finish2 );
+	$curl->get( '/repeat', \&finish2 );
 } );
 
 sub finish2

@@ -2,13 +2,19 @@
 #
 use strict;
 use warnings;
-use Test::More tests => 18;
+use lib 'inc';
+use Test::More;
+use Test::HTTP::Server;
 use Net::Curl::Simple::UserAgent;
+
+my $server = Test::HTTP::Server->new;
+plan skip_all => "Could not run http server\n" unless $server;
+plan tests => 18;
 
 my $ua = Net::Curl::Simple::UserAgent->new();
 my $got = 0;
 my $curl = $ua->curl;
-$curl->get( "http://google.com/", sub {
+$curl->get( $server->uri, sub {
 	my $curl = shift;
 	$got = 1;
 
@@ -18,7 +24,7 @@ $curl->get( "http://google.com/", sub {
 	is( ref $curl->{headers}, 'ARRAY', 'got array of headers' );
 	is( ref $curl->{body}, '', 'got body scalar' );
 	cmp_ok( scalar $curl->headers, '>', 3, 'got at least 3 headers' );
-	cmp_ok( length $curl->content, '>', 1000, 'got some body' );
+	cmp_ok( length $curl->content, '==', 26, 'got some body' );
 	isnt( $curl->{referer}, '', 'referer updarted' );
 } );
 
@@ -26,7 +32,7 @@ $curl->join;
 
 is( $got, 1, 'request did block' );
 
-$ua->curl->get( 'http://google.com/search?q=perl', \&finish2 );
+$ua->curl->get( $server->uri . 'repeat', \&finish2 );
 sub finish2
 {
 	my $curl = shift;
