@@ -11,6 +11,7 @@ my $server = Test::HTTP::Server->new;
 plan skip_all => "Could not run http server\n" unless $server;
 plan tests => 16;
 
+alarm 5;
 
 my $curl = Net::Curl::Simple->new();
 $curl->get( $server->uri . "repeat" );

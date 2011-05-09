@@ -16,6 +16,8 @@ my $server = Test::HTTP::Server->new;
 plan skip_all => "Could not run http server\n" unless $server;
 plan tests => 20;
 
+alarm 5;
+
 my $pos = 1;
 
 my $ca = async {

@@ -12,6 +12,8 @@ my $server = Test::HTTP::Server->new;
 plan skip_all => "Could not run http server\n" unless $server;
 plan tests => 18;
 
+alarm 5;
+
 my $got = 0;
 Net::Curl::Simple->new->get( $server->uri, sub {
 	my $curl = shift;
