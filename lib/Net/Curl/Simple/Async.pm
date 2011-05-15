@@ -4,7 +4,7 @@ use strict; no strict 'refs';
 use warnings; no warnings 'redefine';
 use Net::Curl;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 sub warn_noasynchdns($) { warn @_ }
 

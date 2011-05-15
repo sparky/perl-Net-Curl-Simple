@@ -9,7 +9,7 @@ use URI;
 use URI::Escape qw(uri_escape);
 use base qw(Net::Curl::Easy);
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use constant
 	curl_features => Net::Curl::version_info()->{features};
