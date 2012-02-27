@@ -438,11 +438,11 @@ B<This module is under development.> Its interface may change yet.
 
 C<Net::Curl::Simple> is a thin layer over L<Net::Curl>. It simplifies
 many common tasks, while providing access to full power of L<Net::Curl>
-when its needed.
+when it's needed.
 
-L<Net::Curl> excells in asynchronous operations, thanks to a great design of
+L<Net::Curl> excels in asynchronous operations, thanks to the great design of
 L<libcurl(3)>. To take advantage of that power C<Net::Curl::Simple> interface
-allways uses asynchronous mode. If you want a blocking request, you must either
+uses asynchronous mode by default. If you want a blocking request, you must either
 set callback to C<undef> or call join() method right away.
 
 =head1 CONSTRUCTOR
@@ -631,7 +631,11 @@ or literal names, preferably in lower case, without the CURLOPT_ preffix.
 For description of available options see L<curl_easy_setopt(3)>.
 
 Names for getinfo can also be either CURLINFO_* values or literal names
-without CURLINFO_ preffix.
+without CURLINFO_ prefix.
+
+To import the CURLOPT_ and CURLINFO_ symbols:
+
+  use Net::Curl::Easy qw(:constants);
 
 =head1 SEE ALSO
 
@@ -642,7 +646,7 @@ L<Net::Curl::Easy>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2011 Przemyslaw Iskra <sparky at pld-linux.org>.
+Copyright (c) 2011-2012 Przemyslaw Iskra <sparky at pld-linux.org>.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as perl itself.
